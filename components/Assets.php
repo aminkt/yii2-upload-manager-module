@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\uploadManager\components;
+namespace uploadManager\components;
 
 
 use yii\web\View;

@@ -1,6 +1,6 @@
 <?php
 /** @var $this \yii\web\View */
-/** @var $model \common\modules\uploadManager\models\UploadmanagerFiles */
+/** @var $model \uploadManager\models\UploadmanagerFiles */
 /** @var $counter integer|null */
 
 $this->title = "بارگزاری فایل";

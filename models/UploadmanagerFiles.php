@@ -1,6 +1,6 @@
 <?php
 
-namespace common\modules\uploadManager\models;
+namespace uploadManager\models;
 
 use common\components\YiiJDF;
 use Yii;
@@ -15,6 +15,7 @@ use yii\web\UploadedFile;
  * This is the model class for table "{{%uploadmanager_files}}".
  *
  * @property integer $id
+ * @property integer $userId
  * @property string $name
  * @property string $description
  * @property string $file
@@ -77,7 +78,7 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     {
         return [
             [['metaData', 'extraData'], 'string'],
-            [['status', 'fileType'], 'integer'],
+            [['status', 'fileType', 'userId'], 'integer'],
             [['name', 'description', 'file'], 'string', 'max' => 255],
             [['extension'], 'string', 'max' => 20],
             [['file'], 'unique'],

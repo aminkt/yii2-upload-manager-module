@@ -1,6 +1,6 @@
 <?php
 
-namespace common\modules\uploadManager\components;
+namespace uploadManager\components;
 
 use yii\base\Widget;
 use yii\bootstrap\Html;
@@ -45,7 +45,7 @@ class UploadManager extends Widget
 
     private $_url;
 
-    /** @var  $_module \common\modules\uploadManager\UploadManager */
+    /** @var  $_module \uploadManager\UploadManager */
     private $_module;
     public function init()
     {

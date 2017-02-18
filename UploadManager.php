@@ -1,7 +1,7 @@
 <?php
 
-namespace common\modules\uploadManager;
-use common\modules\uploadManager\models\UploadmanagerFiles;
+namespace uploadManager;
+use uploadManager\models\UploadmanagerFiles;
 use yii\helpers\FileHelper;
 use yii\web\NotFoundHttpException;
 
@@ -13,7 +13,7 @@ class UploadManager extends \yii\base\Module
     /**
      * @inheritdoc
      */
-    public $controllerNamespace = 'common\modules\uploadManager\controllers';
+    public $controllerNamespace = 'uploadManager\controllers';
 
     public $uploadPath;
     public $uploadUrl;

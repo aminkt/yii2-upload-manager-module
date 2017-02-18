@@ -1,10 +1,11 @@
 <?php
 
-namespace common\modules\uploadManager\controllers;
+namespace uploadManager\controllers;
 
-use common\modules\uploadManager\models\UploadmanagerFiles;
-use common\modules\uploadManager\UploadManager;
+use uploadManager\models\UploadmanagerFiles;
+use uploadManager\UploadManager;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
@@ -17,6 +18,24 @@ use yii\web\UploadedFile;
  */
 class DefaultController extends Controller
 {
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /** @var UploadManager $uploadManager */
     public $uploadManager = null;
 
@@ -35,7 +54,7 @@ class DefaultController extends Controller
         $model = new UploadmanagerFiles();
 
         $dataProvider = new ActiveDataProvider([
-            'query'=>$model::find()
+            'query'=>$model::find()->where(['userId'=>\Yii::$app->getUser()->getId()])
         ]);
         if(\Yii::$app->request->isAjax)
             return $this->renderAjax('index', [
@@ -62,6 +81,7 @@ class DefaultController extends Controller
             $uploadPath = $this->uploadManager->uploadPath;
             $size = $this->uploadManager->sizes;
             $model = new UploadmanagerFiles();
+            $model->userId = \Yii::$app->getUser()->getId();
             if (isset($_FILES[$fileName])) {
                 $model->filesContainer = UploadedFile::getInstanceByName($fileName);
                 if ($model->upload($uploadPath, $size)) {
@@ -92,7 +112,7 @@ class DefaultController extends Controller
         $model = new UploadmanagerFiles();
 
         $dataProvider = new ActiveDataProvider([
-            'query'=>$model::find()
+            'query'=>$model::find()->where(['userId'=>\Yii::$app->getUser()->getId()])
         ]);
 
         return $this->renderAjax('ajax', [

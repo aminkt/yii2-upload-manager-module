@@ -3,7 +3,7 @@
 use yii\grid\CheckboxColumn;
 use yii\grid\DataColumn;
 
-/** @var $model \common\modules\uploadManager\models\UploadmanagerFiles */
+/** @var $model \uploadManager\models\UploadmanagerFiles */
 /** @var $dataProvider \yii\data\ActiveDataProvider */
 $this->title = "آرشیو فایل ها";
 ?>
@@ -20,7 +20,7 @@ $this->title = "آرشیو فایل ها";
             'format' => 'raw',
             'value' => function ($model, $key, $index, $column)
             {
-                if($model->fileType == \common\modules\uploadManager\models\UploadmanagerFiles::FILE_TYPE_IMAGE)
+                if($model->fileType == \uploadManager\models\UploadmanagerFiles::FILE_TYPE_IMAGE)
                     $url = Yii::$app->getModule('uploadManager')->image($model->id, 'thumb');
                 else
                     $url = \Yii::$app->getModule('uploadManager')->fileIcon;
@@ -61,7 +61,7 @@ HTML;
             'headerOptions'=>['style'=>"width:10%"],
             'format' => 'text',
             'value' => function ($model, $key, $index, $column) {
-                if($model->status == \common\modules\uploadManager\models\UploadmanagerFiles::STATUS_ENABLE)
+                if($model->status == \uploadManager\models\UploadmanagerFiles::STATUS_ENABLE)
                    return "منتشر شده" ;
                 else
                     return "عدم انتشار";
