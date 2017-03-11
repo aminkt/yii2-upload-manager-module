@@ -18,6 +18,7 @@ class UploadManager extends \yii\base\Module
     public $uploadPath;
     public $uploadUrl;
     public $fileIcon;
+    public $noImage;
     public $acceptedFiles = "image/*,application/pdf,.psd";
     public $sizes = [
         'thumb'=>[150, 150],
@@ -44,6 +45,7 @@ class UploadManager extends \yii\base\Module
         if(!$image)
             return $this->fileIcon;
 
+
          if($size)
             $address = $image::getFileDirectory($image->file).'/'.$size.'_'.$image->name;
         else
@@ -51,7 +53,10 @@ class UploadManager extends \yii\base\Module
 
         if($path){
             $p = FileHelper::normalizePath($this->uploadPath.'/'.$address);
-            return FileHelper::normalizePath($this->uploadPath.'/'.$address);
+            if(file_exists($p))
+                return FileHelper::normalizePath($this->uploadPath.'/'.$address);
+            else
+                return FileHelper::normalizePath($this->uploadPath.'/'.$this->noImage);
         }
         return $this->uploadUrl.'/'.$address;
     }
