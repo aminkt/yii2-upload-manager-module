@@ -8,6 +8,7 @@ use uploadManager\components\Assets;
 /** @var $counter integer|null */
 
 $this->title = "آرشیو فایل ها";
+$dataProvider->setPagination(false);
 $models = $dataProvider->getModels();
 Assets::register($this);
 ?>

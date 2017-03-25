@@ -112,7 +112,8 @@ class DefaultController extends Controller
         $model = new UploadmanagerFiles();
 
         $dataProvider = new ActiveDataProvider([
-            'query'=>$model::find()->where(['userId'=>\Yii::$app->getUser()->getId()])
+            'query'=>$model::find()->where(['userId'=>\Yii::$app->getUser()->getId()]),
+
         ]);
 
         return $this->renderAjax('ajax', [
