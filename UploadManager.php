@@ -60,4 +60,13 @@ class UploadManager extends \yii\base\Module
         }
         return $this->uploadUrl.'/'.$address;
     }
+
+    /**
+     * Return not found image.
+     * @param bool $path
+     * @return string
+     */
+    public function getNoImage($path=false){
+        return FileHelper::normalizePath($path?$this->uploadPath:$this->uploadUrl.'/'.$this->noImage);
+    }
 }
