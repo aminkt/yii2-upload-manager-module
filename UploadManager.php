@@ -67,6 +67,9 @@ class UploadManager extends \yii\base\Module
      * @return string
      */
     public function getNoImage($path=false){
-        return FileHelper::normalizePath($path?$this->uploadPath:$this->uploadUrl.'/'.$this->noImage);
+        if($path)
+            return FileHelper::normalizePath($this->uploadPath.'/'.$this->noImage);
+
+        return $this->uploadUrl.'/'.$this->noImage;
     }
 }
