@@ -20,11 +20,6 @@
 			"aminkt\\uploadManager": ""
 		}
 	},
-	"extra": {
-        "branch-alias": {
-          "dev-master": "master"
-        }
-    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }
