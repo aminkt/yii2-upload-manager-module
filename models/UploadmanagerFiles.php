@@ -1,6 +1,6 @@
 <?php
 
-namespace uploadManager\models;
+namespace aminkt\uploadManager\models;
 
 use common\components\YiiJDF;
 use Yii;
@@ -55,7 +55,7 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%uploadmanager_files}}';
+        return "{{%uploadManager_files}}";
     }
 
     public function behaviors()

@@ -1,9 +1,10 @@
 <?php
 /** @var $this \yii\web\View */
+
 use yii\grid\CheckboxColumn;
 use yii\grid\DataColumn;
 
-/** @var $model \uploadManager\models\UploadmanagerFiles */
+/** @var $model aminkt\uploadManager\models\UploadmanagerFiles */
 /** @var $dataProvider \yii\data\ActiveDataProvider */
 $this->title = "آرشیو فایل ها";
 ?>

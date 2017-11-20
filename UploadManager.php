@@ -1,7 +1,8 @@
 <?php
 
-namespace uploadManager;
-use uploadManager\models\UploadmanagerFiles;
+namespace aminkt\uploadManager;
+
+use aminkt\uploadManager\models\UploadmanagerFiles;
 use yii\helpers\FileHelper;
 use yii\web\NotFoundHttpException;
 
@@ -13,7 +14,7 @@ class UploadManager extends \yii\base\Module
     /**
      * @inheritdoc
      */
-    public $controllerNamespace = 'uploadManager\controllers';
+    public $controllerNamespace = 'aminkt\uploadManager\controllers';
 
     public $uploadPath;
     public $uploadUrl;

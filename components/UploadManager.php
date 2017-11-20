@@ -1,6 +1,6 @@
 <?php
 
-namespace uploadManager\components;
+namespace aminkt\uploadManager\components;
 
 use yii\base\Widget;
 use yii\bootstrap\Html;

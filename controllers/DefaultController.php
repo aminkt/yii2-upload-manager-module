@@ -1,9 +1,9 @@
 <?php
 
-namespace uploadManager\controllers;
+namespace aminkt\uploadManager\controllers;
 
-use uploadManager\models\UploadmanagerFiles;
-use uploadManager\UploadManager;
+use aminkt\uploadManager\models\UploadmanagerFiles;
+use aminkt\uploadManager\UploadManager;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\Json;

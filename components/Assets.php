@@ -1,12 +1,13 @@
 <?php
-namespace uploadManager\components;
+
+namespace aminkt\uploadManager\components;
 
 
 use yii\web\View;
 
 class Assets extends \yii\web\AssetBundle
 {
-    public $sourcePath = "@common/modules/uploadManager/components/assets";
+    public $sourcePath = __DIR__ . "/assets";
     public $css = [
         'image-picker.css',
         'upload-manager.css'
