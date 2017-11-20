@@ -1,5 +1,5 @@
 {
-	"name": "aminkt/yii2-uploadManager-module",
+	"name": "aminkt/yii2-upload-manager",
 	"description": "Upload manager system based and inspired from Wordpress upload manager.",
   	"keywords": ["yii", "upload manager", "upload", "module", "manager"],
 	"type": "yii2-extension",
