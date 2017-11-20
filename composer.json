@@ -19,7 +19,5 @@
 		"psr-4": {
 			"aminkt\\uploadManager": ""
 		}
-	},
-    "minimum-stability": "dev",
-    "prefer-stable": true
+	}
 }
