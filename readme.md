@@ -12,7 +12,12 @@ Then add flowing lines into your application config:
 ],
 ```
 
-|   If you want to edit your files, open `['uploadManager/default/index`]` in your browser.
+Then run below code to migrate up your modules:
+```php
+php yii migrate --migratePath="@vendor/aminkt/yii2-uploadManager-module"
+```
+
+> If you want to edit your files, open `['uploadManager/default/index']` in your browser.
 
 
 How user upload manager widget?
