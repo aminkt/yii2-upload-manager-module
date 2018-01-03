@@ -19,16 +19,16 @@ class m160915_111512_init extends Migration
 
         $this->createTable("{{%uploadManager_files}}", [
             'id'=>$this->primaryKey(),
-            'name'=>$this->string(),
-            'description'=>$this->string(),
-            'file'=>$this->string()->unique(),
+            'name'=>$this->string(191),
+            'description'=>$this->string(191),
+            'file'=>$this->string(191)->unique(),
             'extension'=>$this->string(20),
             'metaData'=>$this->text(),
             'extraData'=>$this->text(),
             'status'=>$this->smallInteger(1),
             'fileType'=>$this->smallInteger(2),
-            'updateTime'=>$this->integer(20),
-            'createTime'=>$this->integer(20)
+            'updateTime'=>$this->dateTime(),
+            'createTime'=>$this->dateTime()
         ]);
 
 
