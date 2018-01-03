@@ -24,8 +24,8 @@ use yii\web\UploadedFile;
  * @property string $extraData
  * @property integer $status
  * @property integer $fileType
- * @property integer $updateTime
- * @property integer $createTime
+ * @property string $updateTime
+ * @property string $createTime
  *
  *
  * @property array $tags
@@ -67,6 +67,8 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
                     ActiveRecord::EVENT_BEFORE_INSERT => ['createTime', 'updateTime'],
                     ActiveRecord::EVENT_BEFORE_UPDATE => ['updateTime'],
                 ],
+                // if you're using datetime instead of UNIX timestamp:
+                'value' => new Expression('NOW()'),
             ],
         ];
     }
@@ -110,9 +112,9 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
      * @return string|boolean
      */
     public static function getUploadedFileDir($dir){
-        $path = $dir.DIRECTORY_SEPARATOR.YiiJDF::jdate('Y', time(), '', 'Asia/Tehran', 'en').DIRECTORY_SEPARATOR.YiiJDF::jdate('n', time(), '', 'Asia/Tehran', 'en');
+        $path = $dir.DIRECTORY_SEPARATOR.date('Y', time()).DIRECTORY_SEPARATOR.date('n', time());
         if(FileHelper::createDirectory($path)){
-            return YiiJDF::jdate('Y', time(), '', 'Asia/Tehran', 'en').'/'.YiiJDF::jdate('n', time(), '', 'Asia/Tehran', 'en');
+            return date('Y', time()).'/'.date('n', time());
         }
         return false;
     }
