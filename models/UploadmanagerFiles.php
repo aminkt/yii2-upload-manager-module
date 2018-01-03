@@ -10,6 +10,7 @@ use yii\helpers\FileHelper;
 use yii\helpers\Json;
 use yii\imagine\Image;
 use yii\web\UploadedFile;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "{{%uploadmanager_files}}".
