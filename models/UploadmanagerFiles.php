@@ -6,11 +6,11 @@ use common\components\YiiJDF;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\helpers\FileHelper;
 use yii\helpers\Json;
 use yii\imagine\Image;
 use yii\web\UploadedFile;
-use yii\db\Expression;
 
 /**
  * This is the model class for table "{{%uploadmanager_files}}".
@@ -56,7 +56,7 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return "{{%uploadManager_files}}";
+        return "{{%uploadmanager_files}}";
     }
 
     public function behaviors()
