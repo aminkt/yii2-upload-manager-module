@@ -248,4 +248,50 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         }
         return $f;
     }
+
+    /**
+     * Return url address of file.
+     *
+     * @param null|string $size File size.
+     *
+     * @return string
+     *
+     * @author Amin Keshavarz <amin@keshavarz.pro>
+     */
+    public function getUrl($size = null)
+    {
+        if ($size)
+            $address = self::getFileDirectory($this->file) . '/' . $size . '_' . $this->name;
+        else
+            $address = self::getFileDirectory($this->file) . '/' . $this->name;
+
+        $uploadUrl = Yii::$app->getModule('uploadManager')->uploadUrl;
+        return $uploadUrl . '/' . $address;
+    }
+
+    /**
+     * Return file path.
+     *
+     * @param null $size
+     *
+     * @return string
+     *
+     * @author Amin Keshavarz <amin@keshavarz.pro>
+     */
+    public function getPath($size = null)
+    {
+        if ($size)
+            $address = self::getFileDirectory($this->file) . '/' . $size . '_' . $this->name;
+        else
+            $address = self::getFileDirectory($this->file) . '/' . $this->name;
+
+        $uploadPath = Yii::$app->getModule('uploadManager')->uploadPath;
+        $noImage = Yii::$app->getModule('uploadManager')->noImage;
+
+        $p = FileHelper::normalizePath($uploadPath . '/' . $address);
+        if (file_exists($p))
+            return FileHelper::normalizePath($uploadPath . '/' . $address);
+        else
+            return FileHelper::normalizePath($uploadPath . '/' . $noImage);
+    }
 }

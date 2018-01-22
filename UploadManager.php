@@ -62,6 +62,27 @@ class UploadManager extends \yii\base\Module
         return $this->uploadUrl.'/'.$address;
     }
 
+
+    /**
+     * Return file model.
+     *
+     * @param integer $id File id.
+     *
+     * @return null|UploadmanagerFiles
+     *
+     * @throws \yii\web\NotFoundHttpException
+     *
+     * @author Amin Keshavarz <amin@keshavarz.pro>
+     */
+    public function getFile($id)
+    {
+        $file = UploadmanagerFiles::findOne($id);
+        if (!$file)
+            throw new NotFoundHttpException("File not found");
+
+        return $file;
+    }
+
     /**
      * Return not found image.
      * @param bool $path
