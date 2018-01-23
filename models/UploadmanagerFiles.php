@@ -260,7 +260,10 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
      */
     public function getUrl($size = null)
     {
-        if ($size)
+        $meta = Json::decode($this->metaData, true);
+        $type = $meta['type'];
+        $type = explode('/', $type);
+        if ($size and $type[0] == 'image')
             $address = self::getFileDirectory($this->file) . '/' . $size . '_' . $this->name;
         else
             $address = self::getFileDirectory($this->file) . '/' . $this->name;

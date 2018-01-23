@@ -7,6 +7,7 @@ use yii\bootstrap\Html;
 use yii\bootstrap\Modal;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
+use yii\web\NotFoundHttpException;
 use yii\web\View;
 
 class UploadManager extends Widget
@@ -45,8 +46,9 @@ class UploadManager extends Widget
 
     private $_url;
 
-    /** @var  $_module \uploadManager\UploadManager */
+    /** @var  $_module \aminkt\uploadManager\UploadManager */
     private $_module;
+
     public function init()
     {
         $this->_module = \Yii::$app->getModule('uploadManager');
@@ -65,7 +67,7 @@ class UploadManager extends Widget
         Assets::register($this->getView());
 
 
-        if($this->model and !$this->model->isNewRecord)
+        if ($this->model)
             $this->initialShowImages();
         parent::init();
     }
@@ -77,12 +79,22 @@ class UploadManager extends Widget
         if($this->model and $this->attribute and $container = $this->showImageContainer){
             $attribute = $this->attribute;
             $ids = explode(',', $this->model->$attribute);
-            if(count($ids)==0)
-                return;
             $pictures = [];
-            foreach ($ids as $id){
-                $pictures[]=['id'=>$id, 'url'=>$this->_module->image($id, 'thumb')];
+            if (count($ids) == 0) {
+                return;
+            } else {
+                foreach ($ids as $id) {
+                    try {
+                        $file = $this->_module->getFile($id);
+                        $pictures[] = ['id' => $id, 'url' => $file->getUrl('thumb'), 'extension' => $file->extension];
+                    } catch (NotFoundHttpException $e) {
+                        $noImage = \Yii::$app->getModule('uploadManager')->noImage;
+                        $pictures[] = ['id' => $id, 'url' => $noImage, 'extension' => 'jpg'];
+                        \Yii::error("Record of file by id={$id} not found", self::className());
+                    }
+                }
             }
+
             $this->generateInitialShowImagesJs($pictures, $container);
         }
     }
@@ -94,14 +106,16 @@ class UploadManager extends Widget
      */
     private function generateInitialShowImagesJs($pictures, $container){
         $jqueryArray = json_encode($pictures);
-        $template = $this->showImagesTemplate;
+        $template = trim(preg_replace('/\s\s+/', ' ', $this->showImagesTemplate));
         $js = <<<JS
 var pictures = $jqueryArray;
 
 var template = "$template";
 var html = "";
 jQuery.each(pictures, function( index, value ) {
-    html += template.replace("{url}", value.url);
+    var t = template.replace("{url}", value.url);
+    var t = t.replace("{file_extension}", value.extension);
+    html += t;
 });
 
 jQuery('$container').html(html);
