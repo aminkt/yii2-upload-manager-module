@@ -12,7 +12,7 @@ $this->title = "آرشیو فایل ها";
 <?= \yii\grid\GridView::widget([
     'dataProvider' => $dataProvider,
     'id'=>'uploadManager-gridView',
-    'tableOptions' => ['class' => 'table table-striped'],
+    'tableOptions' => ['class' => 'table table-striped table-responsive'],
     'columns' => [
         ['class' => CheckboxColumn::className()],
         [
@@ -21,7 +21,7 @@ $this->title = "آرشیو فایل ها";
             'format' => 'raw',
             'value' => function ($model, $key, $index, $column)
             {
-                if($model->fileType == \uploadManager\models\UploadmanagerFiles::FILE_TYPE_IMAGE)
+                if ($model->fileType == aminkt\uploadManager\models\UploadmanagerFiles::FILE_TYPE_IMAGE)
                     $url = Yii::$app->getModule('uploadManager')->image($model->id, 'thumb');
                 else
                     $url = \Yii::$app->getModule('uploadManager')->fileIcon;
@@ -62,23 +62,14 @@ HTML;
             'headerOptions'=>['style'=>"width:10%"],
             'format' => 'text',
             'value' => function ($model, $key, $index, $column) {
-                if($model->status == \uploadManager\models\UploadmanagerFiles::STATUS_ENABLE)
+                if ($model->status == aminkt\uploadManager\models\UploadmanagerFiles::STATUS_ENABLE)
                    return "منتشر شده" ;
                 else
                     return "عدم انتشار";
 
             },
         ],
-        [
-            'class' => DataColumn::className(), // this line is optional
-            'attribute' => 'createTime',
-            'format' => 'text',
-            'headerOptions'=>['style'=>"width:10%"],
-            'value' => function ($model, $key, $index, $column) {
-                return \common\components\YiiJDF::jdate(Yii::$app->params['dateFormat']);
-
-            },
-        ],
+        'createTime:dateTime'
         // ...
     ],
 ]) ?>

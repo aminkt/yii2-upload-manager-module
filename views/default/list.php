@@ -20,12 +20,16 @@ Assets::register($this);
         else
             $url = \Yii::$app->getModule('uploadManager')->fileIcon;
     ?>
-        <option data-img-src="<?= $url ?>" value="<?= $model->id ?>"><?= $model->name ?></option>
+        <option data-img-src="<?= $url ?>" value="<?= $model->id ?>"><?= $model->getType() ?>
+            - <?= number_format($model->tags['size']) ?>kb
+        </option>
     <?php endforeach; ?>
 </select>
 
 <?php
 $this->registerJs(<<<JS
-$("#image-picker-select-$counter").imagepicker()
+$("#image-picker-select-$counter").imagepicker({
+  show_label  : true
+})
 JS
 );
