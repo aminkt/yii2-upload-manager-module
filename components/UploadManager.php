@@ -35,6 +35,9 @@ class UploadManager extends Widget
     /** @var string $showImageContainer jquery selector of container of show image. */
     public $showImageContainer = null;
 
+    /** @var string $sizeOfImageInImageContainer Size of image that should use to render image in container. */
+    public $sizeOfImageInImageContainer = 'thumb';
+
     /** @var string $loadingSelector Jquery selector for loading container. */
     public $loadingSelector = null;
 
@@ -86,7 +89,7 @@ class UploadManager extends Widget
                 foreach ($ids as $id) {
                     try {
                         $file = $this->_module->getFile($id);
-                        $pictures[] = ['id' => $id, 'url' => $file->getUrl('thumb'), 'extension' => $file->extension];
+                        $pictures[] = ['id' => $id, 'url' => $file->getUrl($this->sizeOfImageInImageContainer), 'extension' => $file->extension];
                     } catch (NotFoundHttpException $e) {
                         $noImage = \Yii::$app->getModule('uploadManager')->noImage;
                         $pictures[] = ['id' => $id, 'url' => $noImage, 'extension' => 'jpg'];
