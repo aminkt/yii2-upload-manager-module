@@ -3,7 +3,7 @@
 /** @var $model aminkt\uploadManager\models\UploadmanagerFiles */
 /** @var $counter integer|null */
 
-$this->title = "بارگزاری فایل";
+$this->title = "بارگذاری فایل";
 $this->registerCss(<<<CSS
 .dropzone {
     border: 2px dashed #028AF4;
@@ -15,7 +15,6 @@ $this->registerCss(<<<CSS
 }
 CSS
 );
-
 ?>
 <div class="row">
     <div class="col-md-12">
@@ -27,7 +26,7 @@ CSS
             }
             $acceptedFiles = \Yii::$app->getModule('uploadManager')->acceptedFiles;
             $options = [
-                    'dictDefaultMessage'=>'فایل مورد نظر خود را بکشید و در اینجا رها کنید.',
+                'dictDefaultMessage' => 'اینجا را لمس کنید و یا فایل را بر روی این ناحیه بکشید و رها کنید.',
                     'dictFallbackMessage'=>'متاسفانه مرورگر شما قابلیت کشیدن و رها کردن را پشتیبانی نمیکند.',
                     'dictFallbackText'=>'کلیک کنید و سپس آپلود را شروع کنید.',
                     'dictInvalidFileType'=>'فایل مورد نظر مجاز نیست.',
