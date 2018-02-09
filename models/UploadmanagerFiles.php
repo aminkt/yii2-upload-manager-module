@@ -162,7 +162,12 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         if($this->filesContainer){
             $this->name = static::getUploadedFileName($this->filesContainer);
             $this->extension = $this->filesContainer->extension;
-            $this->metaData = Json::encode($this->filesContainer);
+            $this->metaData = Json::encode([
+                'name' => $this->filesContainer->name,
+                'type' => $this->filesContainer->type,
+                'size' => $this->filesContainer->size,
+                'error' => $this->filesContainer->error,
+            ]);
             $this->status = static::STATUS_ENABLE;
             $this->fileType = static::getFileTypeCode($this->filesContainer);
 
