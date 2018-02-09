@@ -35,6 +35,19 @@ class UploadManager extends \yii\base\Module
     }
 
     /**
+     * @return self
+     *
+     * @author Amin Keshavarz <amin@keshavarz.pro>
+     */
+    public static function getInstance()
+    {
+        if (parent::getInstance())
+            return parent::getInstance();
+
+        return \Yii::$app->getModule('uploadManager');
+    }
+
+    /**
      * @param $id
      * @param null $size
      * @param bool $path

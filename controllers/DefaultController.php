@@ -2,6 +2,7 @@
 
 namespace aminkt\uploadManager\controllers;
 
+use aminkt\uploadManager\components\Upload;
 use aminkt\uploadManager\models\UploadmanagerFiles;
 use aminkt\uploadManager\UploadManager;
 use yii\data\ActiveDataProvider;
@@ -11,7 +12,6 @@ use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UploadedFile;
 
 /**
  * Default controller for the `uploadManager` module
@@ -77,24 +77,10 @@ class DefaultController extends Controller
     public function actionUpload()
     {
         if(\Yii::$app->request->isPost){
-            $fileName = 'file';
-            $uploadPath = $this->uploadManager->uploadPath;
-            $size = $this->uploadManager->sizes;
-            $model = new UploadmanagerFiles();
-            $model->userId = \Yii::$app->getUser()->getId();
-            if (isset($_FILES[$fileName])) {
-                $model->filesContainer = UploadedFile::getInstanceByName($fileName);
-                if ($model->upload($uploadPath, $size)) {
-                    //Now save file data to database
-                    $model->save();
-                    echo Json::encode($model->metaData);
-                    return true;
-                }
-                throw new ServerErrorHttpException("فایل در سرور ذخیره نشد.");
-            }
-            throw new BadRequestHttpException("فایل به سرور ارسال نشد.");
-        }
-        elseif(\Yii::$app->request->isGet)
+            $file = Upload::directUpload();
+            echo Json::encode($file->metaData);
+            return true;
+        } elseif(\Yii::$app->request->isGet)
             return $this->render('upload');
         elseif(\Yii::$app->request->isAjax)
             return $this->renderAjax('upload');
