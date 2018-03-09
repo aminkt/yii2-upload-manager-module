@@ -20,6 +20,7 @@ CSS
     <div class="col-md-12">
         <?php
             if(isset($counter) and $counter!=null) {
+                $counter = str_replace('-', '_', $counter);
                 $id = "dropzone_uploadmanager_$counter";
             }else{
                 $id = "dropzone_uploadmanager";
@@ -46,7 +47,7 @@ CSS
                 'id'=>$id,
                 'dropzoneContainer'=>$id.'_container',
                 'uploadUrl'=>\yii\helpers\Url::to(['/uploadManager/default/upload']),
-                'autoDiscover'=>true,
+                'autoDiscover'=>false,
                 'options'=>$options,
                 'clientEvents'=>$event,
             ]);

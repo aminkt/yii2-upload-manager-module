@@ -9,11 +9,10 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 use yii\web\View;
+use yii\widgets\InputWidget;
 
-class UploadManager extends Widget
+class UploadManager extends InputWidget
 {
-    public $id="uploadManager";
-
     public $titleTxt = 'Select Media';
 
     public $btnTxt = 'Upload Media';
@@ -41,12 +40,6 @@ class UploadManager extends Widget
     /** @var string $loadingSelector Jquery selector for loading container. */
     public $loadingSelector = null;
 
-    /** @var  $model ActiveRecord */
-    public $model;
-
-    /** @var  $attribute string */
-    public $attribute;
-
     private $_url;
 
     /** @var  $_module \aminkt\uploadManager\UploadManager */
@@ -54,6 +47,8 @@ class UploadManager extends Widget
 
     public function init()
     {
+        parent::init();
+
         $this->_module = \Yii::$app->getModule('uploadManager');
         if(count($this->btnOptions)==0){
             $this->btnOptions = [
@@ -66,22 +61,28 @@ class UploadManager extends Widget
                 ],
             ];
         }
-        $this->_url = Url::to(['/uploadManager/default/ajax', 'multiple'=>$this->multiple, 'counter'=>static::$counter], true);
+
+        if($this->id){
+            $this->options['id'] = $this->id;
+        }
+
+        $this->_url = Url::to(['/uploadManager/default/ajax', 'multiple'=>$this->multiple, 'counter'=>$this->id], true);
         Assets::register($this->getView());
 
+        if($this->model and $this->attribute){
+            $this->value = $this->model->{$this->attribute};
+        }
 
-        if ($this->model)
+        if ($this->value)
             $this->initialShowImages();
-        parent::init();
     }
 
     /**
      *  When using an active filed and fill it by pictures ids this method show thumb of images.
      */
     public function initialShowImages(){
-        if($this->model and $this->attribute and $container = $this->showImageContainer){
-            $attribute = $this->attribute;
-            $ids = explode(',', $this->model->$attribute);
+        if($this->value and $container = $this->showImageContainer){
+            $ids = explode(',', $this->value);
             $pictures = [];
             if (count($ids) == 0) {
                 return;
@@ -133,25 +134,27 @@ JS;
     public function generateHtml(){
         echo Html::a($this->btnTxt, '#', $this->btnOptions);
         if($this->helpBlockEnable)
-            echo '<div id="upload-manager-help-block"></div>';
+            echo '<div id="'.$this->id.'-help-block"></div>';
         $modal = Modal::begin([
             'id'=>$this->id.'-modal',
             'size'=>Modal::SIZE_LARGE,
             'header' => '<h4 class="modal-title">'.$this->titleTxt.'</h4>',
         ]);
         if(!$this->loadingSelector){
-            echo '<div class="upload-manager-loading-'.$this->id.'" style="display: none"></div>';
+            echo '<div class="upload-manager-loading-'.$this->id.'" style="display: none">درحال بارگزاری ...</div>';
         }
-        echo '<div id="'.$this->id.'"></div>';
+        echo '<div id="'.$this->id.'-ajax-container"></div>';
 
         echo '<a href="#" id="addto-'.$this->id.'" class="btn btn-primary">درج</a>';
         Modal::end();
-        if($this->model)
-            echo Html::activeHiddenInput($this->model, $this->attribute, ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
-        elseif($this->attribute)
-            echo Html::hiddenInput($this->attribute, '',  ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
-        else
-            echo Html::hiddenInput($this->id, '',  ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
+//        if($this->model)
+//            echo Html::activeHiddenInput($this->model, $this->attribute, ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
+//        elseif($this->attribute)
+//            echo Html::hiddenInput($this->attribute, '',  ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
+//        else
+//            echo Html::hiddenInput($this->id, '',  ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
+
+        echo $this->renderInputHtml('hidden');
     }
 
 
@@ -164,7 +167,7 @@ JS;
         return <<<JS
 jQuery(document).on('click', '.$this->id-modal-btn', function() {
     jQuery("$loadingSelector").show();
-    jQuery("#$this->id").load("$this->_url", function(responseTxt, statusTxt, xhr){
+    jQuery("#$this->id-ajax-container").load("$this->_url", function(responseTxt, statusTxt, xhr){
         if(statusTxt == "success")
             jQuery("$loadingSelector").hide();
         if(statusTxt == "error")
@@ -213,7 +216,7 @@ JS;
     private function helpBlockTextJs(){
         if($this->helpBlockEnable){
             return <<<JS
-  jQuery("#upload-manager-help-block").text(select.val().length+" مورد انتخاب شده است.");
+  jQuery("#{$this->id}-help-block").text(select.val().length+" مورد انتخاب شده است.");
 JS;
         }
     }
@@ -223,13 +226,13 @@ JS;
      * @return string
      */
     private function addButtonClickJs(){
-        $counter = static::$counter;
+        $counter = $this->id;
         $js = <<<JS
 
 $(document).on('click', '#addto-$this->id', function() {
   var select = jQuery('#$this->id-modal').find('#image-picker-select-$counter');
-  jQuery('#$this->id-input').val(select.val());
-  jQuery('#$this->id-input').trigger("change");
+  console.log(jQuery('#$this->id'));
+  jQuery('#$this->id').val(select.val()).trigger("change");
 JS;
         $js.= $this->showImageContainerJs();
         $js.= $this->addImageToTextAreaJs();
