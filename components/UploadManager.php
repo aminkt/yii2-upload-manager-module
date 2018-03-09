@@ -147,13 +147,6 @@ JS;
 
         echo '<a href="#" id="addto-'.$this->id.'" class="btn btn-primary">درج</a>';
         Modal::end();
-//        if($this->model)
-//            echo Html::activeHiddenInput($this->model, $this->attribute, ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
-//        elseif($this->attribute)
-//            echo Html::hiddenInput($this->attribute, '',  ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
-//        else
-//            echo Html::hiddenInput($this->id, '',  ['id'=>$this->id.'-input', 'class'=>'upload_manager_input']);
-
         echo $this->renderInputHtml('hidden');
     }
 
@@ -189,7 +182,7 @@ JS;
 var template = "$template";
 var html = "";
 jQuery(select).find(":selected").each(function() {
-    html += template.replace("{url}", jQuery(this).data('img-src'));
+    html += template.replace("{url}", jQuery(this).data('url'));
 });
 jQuery('$showImageContainer').html(html);
 JS;

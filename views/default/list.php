@@ -15,12 +15,15 @@ Assets::register($this);
 ?>
 <select <?= $multiple?'multiple="multiple"':'' ?> id="image-picker-select-<?= $counter ?>">
     <?php foreach ($models as $model):
-        if ($model->fileType == \aminkt\uploadManager\models\UploadmanagerFiles::FILE_TYPE_IMAGE)
+        $fileUrl = $model->getUrl();
+        if ($model->fileType == \aminkt\uploadManager\models\UploadmanagerFiles::FILE_TYPE_IMAGE) {
             $url = Yii::$app->getModule('uploadManager')->image($model->id, 'thumb');
-        else
+        } else {
             $url = \Yii::$app->getModule('uploadManager')->fileIcon;
+        }
+
     ?>
-        <option data-img-src="<?= $url ?>" value="<?= $model->id ?>"><?= $model->getType() ?>
+        <option data-img-src="<?= $url ?>" data-url="<?= $fileUrl ?>" value="<?= $model->id ?>"><?= $model->getType() ?>
             - <?= number_format($model->tags['size']) ?>kb
         </option>
     <?php endforeach; ?>
