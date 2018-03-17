@@ -5,6 +5,7 @@ namespace aminkt\uploadManager\components;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\Url;
+use yii\web\View;
 use yii\widgets\InputWidget;
 
 class FilePondUploader extends InputWidget
@@ -27,10 +28,11 @@ class FilePondUploader extends InputWidget
             $this->pluginOptions['id'] = $this->getId().'_file_input';
         }
 
+        $classSelector = $this->pluginOptions['id'].'_filepond';
         if(isset($this->pluginOptions['class'])){
-            $this->pluginOptions['class'] .= ' filepond';
+            $this->pluginOptions['class'] .= ' filepond '.$classSelector;
         }else{
-            $this->pluginOptions['class'] = 'filepond';
+            $this->pluginOptions['class'] = 'filepond '.$classSelector;
         }
 
         if(!isset($this->pluginOptions['data']['instant-upload'])){
@@ -73,15 +75,25 @@ class FilePondUploader extends InputWidget
         }
         $files = Json::encode($files);
 
+        $calssSelector = $this->pluginOptions['id'].'_filepond';
+
+        $varName = str_replace('-', '_', $this->getId());
+        $varName = str_replace(' ', '_', $varName);
+
         $js = <<<JS
-let inputElement = document.getElementById('{$this->pluginOptions['id']}');
 FilePond.registerPlugin(
   FilePondPluginImagePreview,
   FilePondPluginImageExifOrientation,
   FilePondPluginFileValidateSize
 );
-let pond = FilePond.create( inputElement );
-pond.setOptions({
+JS;
+        $this->getView()->registerJs($js, View::POS_READY, 'filepondconfiguration');
+
+
+        $js = <<<JS
+
+let {$varName} = FilePond.create( document.getElementById('{$this->pluginOptions['id']}') );
+{$varName}.setOptions({
     labelIdle: 'لطفا عکس مورد نظر را انتخاب کنید',
     labelFileWaitingForSize: 'در حال محسابه اندازه فایل',
     labelFileSizeNotAvailable: 'اندازه فایل مشخص نیست',
@@ -110,10 +122,8 @@ pond.setOptions({
     },
     files: {$files}
 });
-
 document.addEventListener('FilePond:processfile', e => {
-    let inputs = $('input[name="{$this->pluginOptions['id']}"]');
-    console.log(inputs);
+    let inputs = $(".$calssSelector").find('input[name="{$this->pluginOptions['id']}"]');
     let ids = "";
     let delayInMilliseconds = 50; //1 second
     setTimeout(function() {
@@ -126,7 +136,10 @@ document.addEventListener('FilePond:processfile', e => {
                 ids += val;
             }
         }
-        $("#{$this->getId()}").val(ids);
+        let beforeVals = $("#{$this->getId()}").val();
+        if(beforeVals != ids){
+            $("#{$this->getId()}").val(ids).trigger('change');
+        }
     }, delayInMilliseconds);
 });
 JS;
