@@ -2,6 +2,7 @@
 
 namespace aminkt\uploadManager\models;
 
+use aminkt\uploadManager\UploadManager;
 use common\components\YiiJDF;
 use Yii;
 use yii\behaviors\TimestampBehavior;
@@ -244,7 +245,6 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         $file = explode('/', $file);
         $f = "";
         $fSize = count($file);
-        Yii::trace($file);
         for ($i=0; $i<$fSize-1; $i++){
             $f.=$file[$i];
             if($i != $fSize-2){
@@ -281,12 +281,13 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
      * Return file path.
      *
      * @param null $size
+     * @param bool  $returnNullIfNotExists
      *
      * @return string
      *
      * @author Amin Keshavarz <amin@keshavarz.pro>
      */
-    public function getPath($size = null)
+    public function getPath($size = null, $returnNullIfNotExists=false)
     {
         if ($size)
             $address = self::getFileDirectory($this->file) . '/' . $size . '_' . $this->name;
@@ -300,6 +301,31 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         if (file_exists($p))
             return FileHelper::normalizePath($uploadPath . '/' . $address);
         else
-            return FileHelper::normalizePath($uploadPath . '/' . $noImage);
+            return $returnNullIfNotExists? null : FileHelper::normalizePath($uploadPath . '/' . $noImage);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeDelete()
+    {
+        $sizes = UploadManager::getInstance()->sizes;
+        foreach ($sizes as $name=>$size){
+            $path = $this->getPath($name, true);
+            if($path){
+                unlink($path);
+            }else{
+                Yii::warning("Can not delete file {$path}");
+            }
+        }
+
+        $path = $this->getPath(null, true);
+        if($path){
+            unlink($path);
+        }else{
+            Yii::warning("Can not delete file {$path}");
+        }
+
+        return parent::beforeDelete();
     }
 }
