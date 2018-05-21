@@ -15,7 +15,8 @@
 	"require": {
 		"yiisoft/yii2": "*",
         "perminder-klair/yii2-dropzone": "dev-master",
-        "yiisoft/yii2-imagine": "~2.0.0"
+        "yiisoft/yii2-imagine": "~2.0.0",
+		"faravaghi/yii2-jalali-datepicker": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {

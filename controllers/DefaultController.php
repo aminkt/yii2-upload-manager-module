@@ -3,6 +3,7 @@
 namespace aminkt\uploadManager\controllers;
 
 use aminkt\uploadManager\components\Upload;
+use aminkt\uploadManager\models\FileSearch;
 use aminkt\uploadManager\models\UploadmanagerFiles;
 use aminkt\uploadManager\UploadManager;
 use yii\data\ActiveDataProvider;
@@ -11,6 +12,7 @@ use yii\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -18,6 +20,9 @@ use yii\web\ServerErrorHttpException;
  */
 class DefaultController extends Controller
 {
+    /** @var UploadManager $uploadManager */
+    public $uploadManager = null;
+
     /**
      * @inheritdoc
      */
@@ -36,13 +41,10 @@ class DefaultController extends Controller
         ];
     }
 
-    /** @var UploadManager $uploadManager */
-    public $uploadManager = null;
-
     public function init()
     {
         parent::init();
-        $this->uploadManager = \Yii::$app->getModule('uploadManager');
+        $this->uploadManager = UploadManager::getInstance();
     }
 
     /**
@@ -51,19 +53,19 @@ class DefaultController extends Controller
      */
     public function actionIndex()
     {
-        $model = new UploadmanagerFiles();
+        $model = new FileSearch();
+        $dataProvider = $model->search(\Yii::$app->getRequest()->get());
 
-        $dataProvider = new ActiveDataProvider([
-            'query'=>$model::find()->where(['userId'=>\Yii::$app->getUser()->getId()])
-        ]);
-        if(\Yii::$app->request->isAjax)
+        if (\Yii::$app->request->isAjax) {
             return $this->renderAjax('index', [
-                'model'=>$model,
-                'dataProvider'=>$dataProvider,
+                'model' => $model,
+                'dataProvider' => $dataProvider,
             ]);
+        }
+
         return $this->render('index', [
-            'model'=>$model,
-            'dataProvider'=>$dataProvider,
+            'model' => $model,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -76,13 +78,13 @@ class DefaultController extends Controller
      */
     public function actionUpload()
     {
-        if(\Yii::$app->request->isPost){
+        if (\Yii::$app->request->isPost) {
             $file = Upload::directUpload();
             echo Json::encode($file->metaData);
             return true;
-        } elseif(\Yii::$app->request->isGet)
+        } elseif (\Yii::$app->request->isGet)
             return $this->render('upload');
-        elseif(\Yii::$app->request->isAjax)
+        elseif (\Yii::$app->request->isAjax)
             return $this->renderAjax('upload');
         throw new ForbiddenHttpException("شما دسترسی های مجاز برای مرور این صفحه را ندارید.");
     }
@@ -94,19 +96,47 @@ class DefaultController extends Controller
      * @param null $counter
      * @return string
      */
-    public function actionAjax($multiple = false, $counter = null){
-        $model = new UploadmanagerFiles();
+    public function actionAjax($multiple = false, $counter = null)
+    {
+        $model = new FileSearch();
 
-        $dataProvider = new ActiveDataProvider([
-            'query'=>$model::find()->where(['userId'=>\Yii::$app->getUser()->getId()]),
+        $dataProvider = $model->search(\Yii::$app->getRequest()->post());
 
-        ]);
+        $selected = \Yii::$app->getRequest()->post('selected');
+        if(!$selected){
+            $selectedArray = [];
+        }
+        $selectedArray = explode(',', $selected);
 
         return $this->renderAjax('ajax', [
-            'dataProvider'=>$dataProvider,
-            'multiple'=>$multiple,
-            'counter'=>$counter,
+            'dataProvider' => $dataProvider,
+            'model' => $model,
+            'multiple' => $multiple,
+            'counter' => $counter,
+            'selectedItems' => $selectedArray
         ]);
+    }
+
+    /**
+     * Delete file
+     *
+     * @param $id
+     */
+    public function actionDelete($id)
+    {
+        $file = UploadmanagerFiles::findOne($id);
+        if (!$file) {
+            throw new NotFoundHttpException("File not found");
+        }
+
+        if ($file->userId != \Yii::$app->getUser()->getId() and
+            !in_array($this->userId and \Yii::$app->getUser()->getId(), UploadManager::getInstance()->adminId)) {
+            throw new ForbiddenHttpException("You just can delete your files.");
+        }
+
+        $file->delete();
+
+        return $this->goBack();
     }
 
 }

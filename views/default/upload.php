@@ -28,11 +28,11 @@ CSS
             $acceptedFiles = \Yii::$app->getModule('uploadManager')->acceptedFiles;
             $options = [
                 'dictDefaultMessage' => 'اینجا را لمس کنید و یا فایل را بر روی این ناحیه بکشید و رها کنید.',
-                    'dictFallbackMessage'=>'متاسفانه مرورگر شما قابلیت کشیدن و رها کردن را پشتیبانی نمیکند.',
-                    'dictFallbackText'=>'کلیک کنید و سپس آپلود را شروع کنید.',
-                    'dictInvalidFileType'=>'فایل مورد نظر مجاز نیست.',
-                    'dictFileTooBig'=>'حجم فایل بیش از اندازه است.',
-                ];
+                'dictFallbackMessage'=>'متاسفانه مرورگر شما قابلیت کشیدن و رها کردن را پشتیبانی نمیکند.',
+                'dictFallbackText'=>'کلیک کنید و سپس آپلود را شروع کنید.',
+                'dictInvalidFileType'=>'فایل مورد نظر مجاز نیست.',
+                'dictFileTooBig'=>'حجم فایل بیش از اندازه است.',
+            ];
             if($acceptedFiles != "*" and $acceptedFiles)
                 $options['acceptedFiles'] = $acceptedFiles;
 

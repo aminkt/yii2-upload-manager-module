@@ -26,13 +26,9 @@ class UploadManager extends \yii\base\Module
         'small'=>[250, 250],
         'normal'=>[500, 500],
     ];
-    /**
-     * @inheritdoc
-     */
-    public function init()
-    {
-        parent::init();
-    }
+
+    /** @var integer Admin user id to get some extra accesses */
+    public $adminId;
 
     /**
      * @return self
@@ -56,7 +52,7 @@ class UploadManager extends \yii\base\Module
      */
     public function image($id, $size = null, $path=false){
         $image = UploadmanagerFiles::findOne($id);
-        if(!$image)
+        if(!$image or $image->fileType != $image::FILE_TYPE_IMAGE)
             return $this->fileIcon;
 
 

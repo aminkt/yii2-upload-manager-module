@@ -32,6 +32,7 @@ use yii\web\UploadedFile;
  *
  * @property array $tags
  * @property array $type
+ * @property string $fileName
  */
 class UploadmanagerFiles extends \yii\db\ActiveRecord
 {
@@ -216,8 +217,30 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * Get meta data of file.
+     *
+     * @deprecated Use getMeta() instead of this method.
+     *
+     * @return array
+     */
     public function getTags(){
-        return Json::decode($this->metaData);
+        return $this->getMeta();
+    }
+
+    /**
+     * Get meta data
+     *
+     * @param null|string $name Meta name.
+     *
+     * @return array|string
+     */
+    public function getMeta($name = null){
+        $meta = Json::decode($this->metaData);
+        if($name){
+            return $meta[$name];
+        }
+        return $meta;
     }
 
     public function getType(){
@@ -327,5 +350,16 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         }
 
         return parent::beforeDelete();
+    }
+
+    /**
+     * Return orginal file name.
+     *
+     * @return string
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
+    public function getFileName(){
+        return $this->getMeta('name');
     }
 }

@@ -34,3 +34,4 @@ function insertAtCaret(areaId, text) {
 
     txtarea.scrollTop = scrollPos;
 }
+

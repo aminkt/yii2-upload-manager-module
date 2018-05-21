@@ -132,6 +132,22 @@ JS;
      * Generate Html codes of widget.
      */
     public function generateHtml(){
+        $css = <<<CSS
+#{$this->id}-modal .modal-header{
+    border-bottom: inherit;
+}
+#{$this->id}-ajax-container ul.nav.nav-tabs{
+    margin-bottom: 0;
+    border-bottom: inherit;
+}
+#{$this->id}-ajax-container .tab-content{
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 10px;
+    margin-right: 2px;
+}
+CSS;
+        $this->view->registerCss($css);
         echo Html::a($this->btnTxt, '#', $this->btnOptions);
         if($this->helpBlockEnable)
             echo '<div id="'.$this->id.'-help-block"></div>';
@@ -141,11 +157,11 @@ JS;
             'header' => '<h4 class="modal-title">'.$this->titleTxt.'</h4>',
         ]);
         if(!$this->loadingSelector){
-            echo '<div class="upload-manager-loading-'.$this->id.'" style="display: none">درحال بارگزاری ...</div>';
+            echo '<div class="upload-manager-loading" id="upload-manager-loading-'.$this->id.'" style="display: none">درحال بارگزاری ...</div>';
         }
         echo '<div id="'.$this->id.'-ajax-container"></div>';
 
-        echo '<a href="#" id="addto-'.$this->id.'" class="btn btn-primary">درج</a>';
+        echo '<a href="#" id="addto-'.$this->id.'" style="display: none" class="btn btn-primary">درج</a>';
         Modal::end();
         echo $this->renderInputHtml('hidden');
     }
@@ -156,17 +172,44 @@ JS;
      * @return string
      */
     private function showModalJs(){
-        $loadingSelector = $this->loadingSelector?$this->loadingSelector:'.upload-manager-loading-'.$this->id;
+        $loadingSelector = $this->loadingSelector?$this->loadingSelector:'#upload-manager-loading-'.$this->id;
         return <<<JS
 jQuery(document).on('click', '.$this->id-modal-btn', function() {
     jQuery("$loadingSelector").show();
-    jQuery("#$this->id-ajax-container").load("$this->_url", function(responseTxt, statusTxt, xhr){
+    jQuery("#addto-$this->id").hide();
+    jQuery("#$this->id-ajax-container").html('');
+    jQuery("#$this->id-ajax-container").load("$this->_url", {
+        selected: jQuery("#$this->id").val()
+    }, function(responseTxt, statusTxt, xhr){
         if(statusTxt == "success")
             jQuery("$loadingSelector").hide();
+            jQuery("#addto-$this->id").show();
         if(statusTxt == "error")
             alert("Error: " + xhr.status + ": " + xhr.statusText);
     });
 });
+jQuery(document).on('click', "#$this->id-ajax-container .search-uploadmanager-btn", function(e) {
+  e.preventDefault();
+  let container = $(this).parent();
+  let nameSearch = container.find("#filesearch-filename");
+  let typeSearch = container.find("#filesearch-filetype");
+  let dateSearch = container.find("#filesearch-createtime");
+  jQuery("$loadingSelector").show();
+  jQuery("#addto-$this->id").hide();
+  jQuery("#$this->id-ajax-container").html('');
+  jQuery("#$this->id-ajax-container").load("$this->_url", {
+        selected: jQuery("#$this->id").val(),
+        "FileSearch[fileName]": nameSearch.val(),
+        "FileSearch[fileType]": typeSearch.val(),
+        "FileSearch[createTime]": dateSearch.val()
+    }, function(responseTxt, statusTxt, xhr){
+        if(statusTxt == "success")
+            jQuery("$loadingSelector").hide();
+            jQuery("#addto-$this->id").show();
+        if(statusTxt == "error")
+            alert("Error: " + xhr.status + ": " + xhr.statusText);
+    });
+})
 JS;
     }
 
