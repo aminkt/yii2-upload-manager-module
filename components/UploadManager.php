@@ -2,6 +2,7 @@
 
 namespace aminkt\uploadManager\components;
 
+use aminkt\normalizer\Normalize;
 use aminkt\uploadManager\models\UploadmanagerFiles;
 use yii\base\Widget;
 use yii\bootstrap\Html;
@@ -73,7 +74,6 @@ class UploadManager extends InputWidget
             $this->options['id'] = $this->id;
         }
 
-        $this->_url = Url::to(['/uploadManager/default/ajax', 'multiple'=>$this->multiple, 'counter'=>$this->id], true);
         Assets::register($this->getView());
 
         if($this->model and $this->attribute){
@@ -82,6 +82,8 @@ class UploadManager extends InputWidget
 
         if ($this->value)
             $this->initialShowImages();
+
+        $this->_url = Url::to(['/uploadManager/default/ajax', 'multiple'=>$this->multiple, 'counter'=>$this->id], true);
     }
 
     /**
@@ -181,12 +183,37 @@ CSS;
     private function showModalJs(){
         $loadingSelector = $this->loadingSelector?$this->loadingSelector:'#upload-manager-loading-'.$this->id;
         $mediaType = $this->mediaType ? $this->mediaType : '';
+        //todo This part of code is fucked up. please clean it latter.
+        // -----------------------------------
+        $todayTimeFilter = \Yii::$app->getFormatter()->asDate(time(), 'php:Y-m-d');
+        $todayTimeFilter = Normalize::englishNumbers($todayTimeFilter);
+        $afterUploadCallback = <<<JS
+function (file) {
+  jQuery("$loadingSelector").show();
+    jQuery("#addto-$this->id").hide();
+    jQuery("#$this->id-ajax-container").html('');
+    jQuery("#$this->id-ajax-container").load("$this->_url", {
+        selected: jQuery("#$this->id").val(),
+        "FileSearch[fileType]": $mediaType,
+        "FileSearch[createTime]": "$todayTimeFilter"
+    }, function(responseTxt, statusTxt, xhr){
+        if(statusTxt == "success")
+            jQuery("$loadingSelector").hide();
+            jQuery("#addto-$this->id").show();
+        if(statusTxt == "error")
+            alert("Error: " + xhr.status + ": " + xhr.statusText);
+    });
+}
+JS;
+        $afterUploadCallback = urlencode($afterUploadCallback);
+        //-----------------------------------
+
         return <<<JS
 jQuery(document).on('click', '.$this->id-modal-btn', function() {
     jQuery("$loadingSelector").show();
     jQuery("#addto-$this->id").hide();
     jQuery("#$this->id-ajax-container").html('');
-    jQuery("#$this->id-ajax-container").load("$this->_url", {
+    jQuery("#$this->id-ajax-container").load("$this->_url&afterUpload=$afterUploadCallback", {
         selected: jQuery("#$this->id").val(),
         "FileSearch[fileType]": $mediaType
     }, function(responseTxt, statusTxt, xhr){
@@ -206,7 +233,7 @@ jQuery(document).on('click', "#$this->id-ajax-container .search-uploadmanager-bt
   jQuery("$loadingSelector").show();
   jQuery("#addto-$this->id").hide();
   jQuery("#$this->id-ajax-container").html('');
-  jQuery("#$this->id-ajax-container").load("$this->_url", {
+  jQuery("#$this->id-ajax-container").load("$this->_url&afterUpload=$afterUploadCallback", {
         selected: jQuery("#$this->id").val(),
         "FileSearch[fileName]": nameSearch.val(),
         "FileSearch[fileType]": typeSearch.val(),

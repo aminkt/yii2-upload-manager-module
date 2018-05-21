@@ -39,7 +39,7 @@ CSS
             $afterUploadEvent = Yii::$app->request->get('afterUpload');
             if($afterUploadEvent){
                 $event = [
-                    'complete' => $afterUploadEvent,
+                    'success' => $afterUploadEvent,
                 ];
             }else
                 $event = null;
