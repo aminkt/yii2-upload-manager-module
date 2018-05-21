@@ -2,6 +2,7 @@
 
 namespace aminkt\uploadManager\components;
 
+use aminkt\uploadManager\models\UploadmanagerFiles;
 use yii\base\Widget;
 use yii\bootstrap\Html;
 use yii\bootstrap\Modal;
@@ -39,6 +40,12 @@ class UploadManager extends InputWidget
 
     /** @var string $loadingSelector Jquery selector for loading container. */
     public $loadingSelector = null;
+
+    /**
+     * @var null|integer $mediaType Define media type to load an special type or not to load all types.
+     * @see UploadmanagerFiles constants
+     */
+    public $mediaType = null;
 
     private $_url;
 
@@ -173,13 +180,15 @@ CSS;
      */
     private function showModalJs(){
         $loadingSelector = $this->loadingSelector?$this->loadingSelector:'#upload-manager-loading-'.$this->id;
+        $mediaType = $this->mediaType ? $this->mediaType : '';
         return <<<JS
 jQuery(document).on('click', '.$this->id-modal-btn', function() {
     jQuery("$loadingSelector").show();
     jQuery("#addto-$this->id").hide();
     jQuery("#$this->id-ajax-container").html('');
     jQuery("#$this->id-ajax-container").load("$this->_url", {
-        selected: jQuery("#$this->id").val()
+        selected: jQuery("#$this->id").val(),
+        "FileSearch[fileType]": $mediaType
     }, function(responseTxt, statusTxt, xhr){
         if(statusTxt == "success")
             jQuery("$loadingSelector").hide();
