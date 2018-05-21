@@ -194,7 +194,7 @@ function (file) {
     jQuery("#$this->id-ajax-container").html('');
     jQuery("#$this->id-ajax-container").load("$this->_url", {
         selected: jQuery("#$this->id").val(),
-        "FileSearch[fileType]": $mediaType,
+        "FileSearch[fileType]": "$mediaType",
         "FileSearch[createTime]": "$todayTimeFilter"
     }, function(responseTxt, statusTxt, xhr){
         if(statusTxt == "success")
@@ -215,7 +215,7 @@ jQuery(document).on('click', '.$this->id-modal-btn', function() {
     jQuery("#$this->id-ajax-container").html('');
     jQuery("#$this->id-ajax-container").load("$this->_url&afterUpload=$afterUploadCallback", {
         selected: jQuery("#$this->id").val(),
-        "FileSearch[fileType]": $mediaType
+        "FileSearch[fileType]": "$mediaType"
     }, function(responseTxt, statusTxt, xhr){
         if(statusTxt == "success")
             jQuery("$loadingSelector").hide();
