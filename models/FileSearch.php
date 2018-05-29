@@ -68,13 +68,13 @@ class FileSearch extends UploadmanagerFiles
             'status' => $this->status,
         ]);
 
-        if($this->userId and in_array(\Yii::$app->getUser()->getId(), UploadManager::getInstance()->adminId)){
-            $query->andFilterWhere([
-                'userId' => $this->userId,
-            ]);
-        }else if(!in_array(\Yii::$app->getUser()->getId(), UploadManager::getInstance()->adminId)){
+        if(!UploadManager::getInstance()->adminId or !in_array(\Yii::$app->getUser()->getId(), UploadManager::getInstance()->adminId)){
             $query->andFilterWhere([
                 'userId' => \Yii::$app->getUser()->getId(),
+            ]);
+        } elseif($this->userId and in_array(\Yii::$app->getUser()->getId(), UploadManager::getInstance()->adminId)){
+            $query->andFilterWhere([
+                'userId' => $this->userId,
             ]);
         }
 
