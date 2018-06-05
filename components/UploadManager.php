@@ -21,7 +21,7 @@ class UploadManager extends InputWidget
 
     public $helpBlockEnable = true;
 
-    /** @var array $btnOptions Tag options of btn*/
+    /** @var array $btnOptions Tag options of btn */
     public $btnOptions = [];
 
     /** @var string $textAreaId Jquery selector of textarea that you want plugin insert id of uploaded images as a text. */
@@ -58,39 +58,41 @@ class UploadManager extends InputWidget
         parent::init();
 
         $this->_module = \Yii::$app->getModule('uploadManager');
-        if(count($this->btnOptions)==0){
+        if (count($this->btnOptions) == 0) {
             $this->btnOptions = [
-                'class'=>'btn btn-primary tooltiped '.$this->id.'-modal-btn',
-                'type'=>'button',
+                'class' => 'btn btn-primary tooltiped ' . $this->id . '-modal-btn',
+                'type' => 'button',
+                'style'=>'border-radius:0;',
                 'data' => [
-                    'target'=>'#'.$this->id.'-modal',
+                    'target' => '#' . $this->id . '-modal',
                     'toggle' => 'modal',
-                    'pjax'=>'#'.$this->id.'-ajax',
+                    'pjax' => '#' . $this->id . '-ajax',
                 ],
             ];
         }
 
-        if($this->id){
+        if ($this->id) {
             $this->options['id'] = $this->id;
         }
 
         Assets::register($this->getView());
 
-        if($this->model and $this->attribute){
+        if ($this->model and $this->attribute) {
             $this->value = $this->model->{$this->attribute};
         }
 
         if ($this->value)
             $this->initialShowImages();
 
-        $this->_url = Url::to(['/uploadManager/default/ajax', 'multiple'=>$this->multiple, 'counter'=>$this->id], true);
+        $this->_url = Url::to(['/uploadManager/default/ajax', 'multiple' => $this->multiple, 'counter' => $this->id], true);
     }
 
     /**
      *  When using an active filed and fill it by pictures ids this method show thumb of images.
      */
-    public function initialShowImages(){
-        if($this->value and $container = $this->showImageContainer){
+    public function initialShowImages()
+    {
+        if ($this->value and $container = $this->showImageContainer) {
             $ids = explode(',', $this->value);
             $pictures = [];
             if (count($ids) == 0) {
@@ -117,7 +119,8 @@ class UploadManager extends InputWidget
      * @param $pictures
      * @param $container
      */
-    private function generateInitialShowImagesJs($pictures, $container){
+    private function generateInitialShowImagesJs($pictures, $container)
+    {
         $jqueryArray = json_encode($pictures);
         $template = trim(preg_replace('/\s\s+/', ' ', $this->showImagesTemplate));
         $js = <<<JS
@@ -136,11 +139,17 @@ JS;
         $this->getView()->registerJs($js, View::POS_READY);
     }
 
+    public function run()
+    {
+        $this->generateHtml();
+        $this->generateJs();
+    }
 
     /**
      * Generate Html codes of widget.
      */
-    public function generateHtml(){
+    public function generateHtml()
+    {
         $css = <<<CSS
 #{$this->id}-modal .modal-header{
     border-bottom: inherit;
@@ -158,30 +167,47 @@ JS;
 CSS;
         $this->view->registerCss($css);
         echo Html::a($this->btnTxt, '#', $this->btnOptions);
-        if($this->helpBlockEnable)
-            echo '<div id="'.$this->id.'-help-block"></div>';
-        $modal = Modal::begin([
-            'id'=>$this->id.'-modal',
-            'size'=>Modal::SIZE_LARGE,
-            'header' => '<h4 class="modal-title">'.$this->titleTxt.'</h4>',
+        echo Html::button('x', [
+            'class' => 'btn btn-danger',
+            'id' => 'remove-from-'.$this->getId(),
+            'style' => ($this->value ? 'display:inline;' : 'display:none;').'border-radius:border-radius: 0;'
         ]);
-        if(!$this->loadingSelector){
-            echo '<div class="upload-manager-loading" id="upload-manager-loading-'.$this->id.'" style="display: none">درحال بارگزاری ...</div>';
+        if ($this->helpBlockEnable)
+            echo '<div id="' . $this->id . '-help-block"></div>';
+        $modal = Modal::begin([
+            'id' => $this->id . '-modal',
+            'size' => Modal::SIZE_LARGE,
+            'header' => '<h4 class="modal-title">' . $this->titleTxt . '</h4>',
+        ]);
+        if (!$this->loadingSelector) {
+            echo '<div class="upload-manager-loading" id="upload-manager-loading-' . $this->id . '" style="display: none">درحال بارگزاری ...</div>';
         }
-        echo '<div id="'.$this->id.'-ajax-container"></div>';
+        echo '<div id="' . $this->id . '-ajax-container"></div>';
 
-        echo '<a href="#" id="addto-'.$this->id.'" style="display: none" class="btn btn-primary">درج</a>';
+        echo '<a href="#" id="addto-' . $this->id . '" style="display: none" class="btn btn-primary">درج</a>';
         Modal::end();
         echo $this->renderInputHtml('hidden');
     }
 
+    /**
+     * Register js code of widget.
+     */
+    public function generateJs()
+    {
+
+        $js = $this->showModalJs();
+        $js .= $this->addButtonClickJs();
+        $js .= $this->enableTabsinModalJs();
+        $this->getView()->registerJs($js, View::POS_READY);
+    }
 
     /**
      * Create javascript code for showing upload manager modal.
      * @return string
      */
-    private function showModalJs(){
-        $loadingSelector = $this->loadingSelector?$this->loadingSelector:'#upload-manager-loading-'.$this->id;
+    private function showModalJs()
+    {
+        $loadingSelector = $this->loadingSelector ? $this->loadingSelector : '#upload-manager-loading-' . $this->id;
         $mediaType = $this->mediaType ? $this->mediaType : '';
         //todo This part of code is fucked up. please clean it latter.
         // -----------------------------------
@@ -249,13 +275,44 @@ jQuery(document).on('click', "#$this->id-ajax-container .search-uploadmanager-bt
 JS;
     }
 
+    /**
+     * Js code for actions needed when user click on add btn.
+     * @return string
+     */
+    private function addButtonClickJs()
+    {
+        $counter = $this->id;
+        $js = <<<JS
+
+$(document).on('click', '#addto-$this->id', function() {
+  var select = jQuery('#$this->id-modal').find('#image-picker-select-$counter');
+  console.log(jQuery('#$this->id'));
+  jQuery('#$this->id').val(select.val()).trigger("change");
+JS;
+        $js .= $this->showImageContainerJs();
+        $js .= $this->addImageToTextAreaJs();
+        $js .= $this->helpBlockTextJs();
+        $js .= <<<JS
+  jQuery("#$this->id-modal").modal('hide');
+});
+JS;
+        $showImageContainer = $this->showImageContainer ? $this->showImageContainer : '#not-setted-image-container-'.$this->getId();
+        $js .= <<<JS
+$(document).on('click', '#remove-from-$this->id', function() {
+  jQuery('#$this->id').val('').trigger("change");
+  jQuery('$showImageContainer').html('');
+});
+JS;
+        return $js;
+    }
 
     /**
      * Js code for show selected images in to show image container.
      * @return string
      */
-    private function showImageContainerJs(){
-        if($showImageContainer = $this->showImageContainer){
+    private function showImageContainerJs()
+    {
+        if ($showImageContainer = $this->showImageContainer) {
             $template = $this->showImagesTemplate;
             return <<<JS
 var template = "$template";
@@ -272,9 +329,10 @@ JS;
      * Js code for adding code into text area to define selected images.
      * @return string
      */
-    private function addImageToTextAreaJs(){
+    private function addImageToTextAreaJs()
+    {
         $txtId = $this->textAreaId;
-        if($txtId){
+        if ($txtId) {
             return <<<JS
     insertAtCaret('$txtId', 'UploadManager['+select.val()+']');
 JS;
@@ -285,38 +343,17 @@ JS;
      * Js code for show help block text.
      * @return string
      */
-    private function helpBlockTextJs(){
-        if($this->helpBlockEnable){
+    private function helpBlockTextJs()
+    {
+        if ($this->helpBlockEnable) {
             return <<<JS
   jQuery("#{$this->id}-help-block").text(select.val().length+" مورد انتخاب شده است.");
 JS;
         }
     }
 
-    /**
-     * Js code for actions needed when user click on add btn.
-     * @return string
-     */
-    private function addButtonClickJs(){
-        $counter = $this->id;
-        $js = <<<JS
-
-$(document).on('click', '#addto-$this->id', function() {
-  var select = jQuery('#$this->id-modal').find('#image-picker-select-$counter');
-  console.log(jQuery('#$this->id'));
-  jQuery('#$this->id').val(select.val()).trigger("change");
-JS;
-        $js.= $this->showImageContainerJs();
-        $js.= $this->addImageToTextAreaJs();
-        $js.= $this->helpBlockTextJs();
-        $js .=<<<JS
-  jQuery("#$this->id-modal").modal('hide');
-});
-JS;
-        return $js;
-    }
-
-    private function enableTabsinModalJs(){
+    private function enableTabsinModalJs()
+    {
         return <<<JS
 jQuery(document).on("click",".modal-body li a",function()
     {
@@ -329,26 +366,6 @@ jQuery(document).on("click",".modal-body li a",function()
 JS;
 
     }
-
-
-    /**
-     * Register js code of widget.
-     */
-    public function generateJs(){
-
-        $js = $this->showModalJs();
-        $js .= $this->addButtonClickJs();
-        $js .= $this->enableTabsinModalJs();
-        $this->getView()->registerJs($js, View::POS_READY);
-    }
-
-
-    public function run()
-    {
-        $this->generateHtml();
-        $this->generateJs();
-    }
-
 
 
 }
