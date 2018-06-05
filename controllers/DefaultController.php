@@ -130,7 +130,7 @@ class DefaultController extends Controller
         }
 
         if ($file->userId != \Yii::$app->getUser()->getId() and
-            !in_array($this->userId and \Yii::$app->getUser()->getId(), UploadManager::getInstance()->adminId)) {
+            !in_array(\Yii::$app->getUser()->getId(), UploadManager::getInstance()->adminId)) {
             throw new ForbiddenHttpException("You just can delete your files.");
         }
 
