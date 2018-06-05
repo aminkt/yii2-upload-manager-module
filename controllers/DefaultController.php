@@ -136,7 +136,7 @@ class DefaultController extends Controller
 
         $file->delete();
 
-        return $this->goBack();
+        return $this->redirect(['index']);
     }
 
 }

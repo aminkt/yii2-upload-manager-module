@@ -42,6 +42,7 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
         'attribute' => 'createTime',
         'options' => array(
             'format' => 'yyyy-mm-dd',
+            'autocomplete' => 'off',
             'viewformat' => 'yyyy/mm/dd',
             'placement' => 'left',
             'todayBtn' => 'linked',

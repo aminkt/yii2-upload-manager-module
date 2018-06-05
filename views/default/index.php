@@ -31,6 +31,7 @@ $this->title = "آرشیو فایل ها";
         'options' => array(
             'format' => 'yyyy-mm-dd',
             'viewformat' => 'yyyy/mm/dd',
+            'autocomplete' => 'off',
             'placement' => 'left',
             'todayBtn' => 'linked',
             'class' => 'form-control',

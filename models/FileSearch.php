@@ -55,6 +55,12 @@ class FileSearch extends UploadmanagerFiles
             'query' => $query,
             'pagination' => [
                 'pageSize' => 50
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'createTime' => SORT_DESC,
+                    'updateTime' => SORT_DESC,
+                ]
             ]
         ]);
 
