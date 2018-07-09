@@ -30,6 +30,22 @@ class UploadManager extends \yii\base\Module
     /** @var integer Admin user id to get some extra accesses */
     public $adminId;
 
+    /** @var string Namespace of user model class. */
+    public $userClass;
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        $this->modules = [
+            'apiV1' => [
+                'class' => 'aminkt\uploadManager\api\v1\Module',
+            ],
+        ];
+    }
+
     /**
      * @return self
      *

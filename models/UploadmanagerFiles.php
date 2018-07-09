@@ -362,4 +362,33 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     public function getFileName(){
         return $this->getMeta('name');
     }
+
+    /**
+     * Return user class.
+     *
+     * @return null|static
+     */
+    public function getOwner(){
+        /** @var ActiveRecord $userClass */
+        $userClass = UploadManager::getInstance()->userClass;
+        $user = $userClass::findOne($this->userId);
+        return $user;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        return [
+            'id',
+            'fileName',
+            'name',
+            'description',
+            'extension',
+            'type',
+            'owner',
+            'url'
+        ];
+    }
 }
