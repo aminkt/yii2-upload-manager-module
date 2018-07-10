@@ -41,18 +41,12 @@ class UploadController extends ActiveController
             'cors' => [
                 // restrict access to
                 'Origin' => ['*'],
-                'methods' => ['*']
+                'methods' => ['GET', 'POST', 'DELETE', 'OPTIONS', 'HEAD']
             ],
             'actions' => [
-                'login' => [
+                '*' => [
                     'Access-Control-Allow-Credentials' => true,
                 ],
-                'login-authed' => [
-                    'Access-Control-Allow-Credentials' => true,
-                ],
-                'revoke-token' => [
-                    'Access-Control-Allow-Credentials' => true,
-                ]
             ]
         ];
 
@@ -65,7 +59,7 @@ class UploadController extends ActiveController
                 QueryParamAuth::className(),
             ],
             'except' => ['options'],
-            'optional' => ['view']
+            'optional' => ['view', 'load']
         ];
         return $behaviors;
     }
