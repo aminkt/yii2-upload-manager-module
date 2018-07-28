@@ -139,18 +139,20 @@ class UploadController extends ActiveController
     /**
      * Upload new file.
      *
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
-     * @throws ServerErrorHttpException
+     * @param bool $isBase64
      *
+     * @return UploadmanagerFiles[]|array
+     * @throws BadRequestHttpException
+     * @throws \yii\web\ForbiddenHttpException
+     * @throws \yii\web\ServerErrorHttpException
      * @author Saghar Mojdehi <saghar.mojdehi@gmail.com>
      */
-    public function actionCreate()
+    public function actionCreate($isBase64 = false)
     {
         /** @var UploadmanagerFiles[] $files */
         $files = [];
         foreach ($_FILES as $name => $file){
-            $files[] = Upload::directUpload($name);
+            $files[] = Upload::directUpload($name, $isBase64);
         }
         if(count($files) > 0){
             return $files;
