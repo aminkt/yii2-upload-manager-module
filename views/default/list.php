@@ -10,7 +10,7 @@ use \aminkt\uploadManager\UploadManager;
 /** @var $selectedItems array   Items that selected. */
 
 $this->title = "آرشیو فایل ها";
-$dataProvider->setPagination(false);
+//$dataProvider->setPagination(false);
 $models = $dataProvider->getModels();
 Assets::register($this);
 $size = UploadManager::getInstance()->sizes['thumb'];
@@ -88,6 +88,13 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
             </select>
         </div>
 
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <?php echo \yii\widgets\LinkPager::widget([
+            'pagination' => $dataProvider->getPagination()
+        ]) ?>
     </div>
 </div>
 <?php

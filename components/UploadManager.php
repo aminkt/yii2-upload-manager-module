@@ -170,7 +170,7 @@ CSS;
         echo Html::button('x', [
             'class' => 'btn btn-danger',
             'id' => 'remove-from-'.$this->getId(),
-            'style' => ($this->value ? 'display:inline;' : 'display:none;').'border-radius:border-radius: 0;'
+            'style' => 'display:inline;border-radius:border-radius: 0;'
         ]);
         if ($this->helpBlockEnable)
             echo '<div id="' . $this->id . '-help-block"></div>';
@@ -271,6 +271,30 @@ jQuery(document).on('click', "#$this->id-ajax-container .search-uploadmanager-bt
         if(statusTxt == "error")
             alert("Error: " + xhr.status + ": " + xhr.statusText);
     });
+});
+jQuery(document).on('click', "#$this->id-ajax-container .pagination a", function(e) {
+  e.preventDefault();
+  let page = $(this).data('page');
+  let container = $(this).parent().parent().parent().parent().parent();
+  let nameSearch = container.find("#filesearch-filename");
+  let typeSearch = container.find("#filesearch-filetype");
+  let dateSearch = container.find("#filesearch-createtime");
+  console.log(container);
+  jQuery("$loadingSelector").show();
+  jQuery("#addto-$this->id").hide();
+  jQuery("#$this->id-ajax-container").html('');
+  jQuery("#$this->id-ajax-container").load("$this->_url&afterUpload=$afterUploadCallback&page="+(page+1), {
+        selected: jQuery("#$this->id").val(),
+        "FileSearch[fileName]": nameSearch.val(),
+        "FileSearch[fileType]": typeSearch.val(),
+        "FileSearch[createTime]": dateSearch.val()
+    }, function(responseTxt, statusTxt, xhr){
+        if(statusTxt == "success")
+            jQuery("$loadingSelector").hide();
+            jQuery("#addto-$this->id").show();
+        if(statusTxt == "error")
+            alert("Error: " + xhr.status + ": " + xhr.statusText);
+    });
 })
 JS;
     }
@@ -355,7 +379,7 @@ JS;
     private function enableTabsinModalJs()
     {
         return <<<JS
-jQuery(document).on("click",".modal-body li a",function()
+jQuery(document).on("click",".modal-body ul.nav-tabs li a",function()
     {
         tab = jQuery(this).attr("href");
         jQuery(".modal-body .tab-content div").each(function(){
