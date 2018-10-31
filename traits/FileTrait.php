@@ -1,52 +1,17 @@
 <?php
 
-namespace aminkt\uploadManager\models;
-
-use aminkt\uploadManager\UploadManager;
-use common\components\YiiJDF;
-use Yii;
-use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveRecord;
-use yii\db\Expression;
-use yii\helpers\FileHelper;
-use yii\helpers\Json;
-use yii\imagine\Image;
-use yii\web\UploadedFile;
+namespace aminkt\uploadManager\traits;
 
 /**
- * This is the model class for table "{{%uploadmanager_files}}".
+ * Trait FileTrait
+ * Implement some usefull function for File active record that you should use it in you model.
  *
- * @property integer $id
- * @property integer $userId
- * @property string $name
- * @property string $description
- * @property string $file
- * @property string $extension
- * @property string $metaData
- * @property string $extraData
- * @property integer $status
- * @property integer $fileType
- * @property string $updateTime
- * @property string $createTime
+ * @package aminkt\uploadManager\traits
  *
- *
- * @property array $tags
- * @property array $type
- * @property string $fileName
+ * @author Amin Keshavarz <ak_1596@yahoo.com>
  */
-class UploadmanagerFiles extends \yii\db\ActiveRecord
+trait FileTrait
 {
-    const FILE_TYPE_IMAGE = 1;
-    const FILE_TYPE_VIDEO = 2;
-    const FILE_TYPE_AUDIO = 3;
-    const FILE_TYPE_ARCHIVE = 4;
-    const FILE_TYPE_DOCUMENT = 5;
-    const FILE_TYPE_APPLICATION = 6;
-    const FILE_TYPE_UNDEFINED = 7;
-
-    const STATUS_DISABLE = 0;
-    const STATUS_ENABLE = 1;
-
 
     /**
      * @var UploadedFile container of file uploaded
@@ -56,34 +21,22 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
-        return "{{%uploadmanager_files}}";
-    }
-
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => TimestampBehavior::className(),
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['createTime', 'updateTime'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updateTime'],
-                ],
-                // if you're using datetime instead of UNIX timestamp:
-                'value' => new Expression('NOW()'),
-            ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function rules()
     {
+
         return [
             [['metaData', 'extraData'], 'string'],
-            [['status', 'fileType', 'userId'], 'integer'],
+            [['userId'], 'integer'],
+            [['status'], 'in', 'range' => [static::STATUS_DISABLE, static::STATUS_ENABLE]],
+            [['fileType'], 'in', 'range' => [
+                static::FILE_TYPE_IMAGE,
+                static::FILE_TYPE_VIDEO,
+                static::FILE_TYPE_AUDIO,
+                static::FILE_TYPE_ARCHIVE,
+                static::FILE_TYPE_DOCUMENT,
+                static::FILE_TYPE_APPLICATION,
+                static::FILE_TYPE_UNDEFINED,
+            ]],
             [['name', 'description', 'file'], 'string', 'max' => 255],
             [['extension'], 'string', 'max' => 20],
             [['file'], 'unique'],
@@ -200,50 +153,7 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'name' => 'نام',
-            'description' => 'توضیحات',
-            'file' => 'File',
-            'extension' => 'پسوند',
-            'metaData' => 'اطلاعات الصاقی',
-            'extraData' => 'Extra Data',
-            'status' => 'وضعیت',
-            'fileType' => 'نوع فایل',
-            'createTime' => 'زمان ایجاد',
-            'type' => 'نوع فایل',
-        ];
-    }
-
-    /**
-     * Get meta data of file.
-     *
-     * @deprecated Use getMeta() instead of this method.
-     *
-     * @return array
-     */
-    public function getTags(){
-        return $this->getMeta();
-    }
-
-    /**
-     * Get meta data
-     *
-     * @param null|string $name Meta name.
-     *
-     * @return array|string
-     */
-    public function getMeta($name = null){
-        $meta = Json::decode($this->metaData);
-        if($name){
-            return $meta[$name];
-        }
-        return $meta;
-    }
-
-    public function getType(){
+    public function getTypeLabel(){
         switch ($this->fileType){
             case static::FILE_TYPE_IMAGE:
                 return 'تصویر';
@@ -262,19 +172,6 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
             default:
                 return 'خطا در دریافت اطلاعات';
         }
-    }
-
-    public static function getFileDirectory($file){
-        $file = explode('/', $file);
-        $f = "";
-        $fSize = count($file);
-        for ($i=0; $i<$fSize-1; $i++){
-            $f.=$file[$i];
-            if($i != $fSize-2){
-                $f.="/";
-            }
-        }
-        return $f;
     }
 
     /**
@@ -328,10 +225,11 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * Delete all instance of current file.
+     *
+     * @return void
      */
-    public function beforeDelete()
-    {
+    public function deleteFiles(){
         $sizes = UploadManager::getInstance()->sizes;
         foreach ($sizes as $name=>$size){
             $path = $this->getPath($name, true);
@@ -348,8 +246,6 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         }else{
             Yii::warning("Can not delete file {$path}");
         }
-
-        return parent::beforeDelete();
     }
 
     /**
@@ -364,31 +260,22 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     }
 
     /**
-     * Return user class.
+     * Return file directory
      *
-     * @return null|static
+     * @param $file
+     *
+     * @return string
      */
-    public function getOwner(){
-        /** @var ActiveRecord $userClass */
-        $userClass = UploadManager::getInstance()->userClass;
-        $user = $userClass::findOne($this->userId);
-        return $user;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function fields()
-    {
-        return [
-            'id',
-            'fileName',
-            'name',
-            'description',
-            'extension',
-            'type',
-            'owner',
-            'url'
-        ];
+    public static function getFileDirectory($file){
+        $file = explode('/', $file);
+        $f = "";
+        $fSize = count($file);
+        for ($i=0; $i<$fSize-1; $i++){
+            $f.=$file[$i];
+            if($i != $fSize-2){
+                $f.="/";
+            }
+        }
+        return $f;
     }
 }

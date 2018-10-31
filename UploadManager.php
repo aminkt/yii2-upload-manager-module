@@ -2,6 +2,8 @@
 
 namespace aminkt\uploadManager;
 
+use aminkt\uploadManager\models\File;
+use aminkt\uploadManager\models\FileSearch;
 use aminkt\uploadManager\models\UploadmanagerFiles;
 use yii\helpers\FileHelper;
 use yii\web\NotFoundHttpException;
@@ -32,6 +34,9 @@ class UploadManager extends \yii\base\Module
 
     /** @var string Namespace of user model class. */
     public $userClass;
+
+    public $fileModel = File::class;
+    public $fileSearchModel = FileSearch::class;
 
     /**
      * @inheritdoc

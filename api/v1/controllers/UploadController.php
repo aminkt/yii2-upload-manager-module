@@ -5,11 +5,13 @@ namespace aminkt\uploadManager\api\v1\controllers;
 use aminkt\uploadManager\components\Upload;
 use aminkt\uploadManager\models\FileSearch;
 use aminkt\uploadManager\models\UploadmanagerFiles;
-use yii\rest\ActiveController;
+use aminkt\uploadManager\UploadManager;
+use yii\data\ActiveDataProvider;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\auth\QueryParamAuth;
+use yii\rest\ActiveController;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 
@@ -23,11 +25,16 @@ use yii\web\NotFoundHttpException;
  */
 class UploadController extends ActiveController
 {
-    public $modelClass = Business::class;
     public $serializer = [
         'class' => 'yii\rest\Serializer',
         'collectionEnvelope' => 'data',
     ];
+
+    public function init()
+    {
+        parent::init();
+        $this->modelClass = UploadManager::getInstance()->fileModel;
+    }
 
     public function behaviors()
     {
@@ -83,11 +90,19 @@ class UploadController extends ActiveController
      */
     public function actionIndex()
     {
-        $searchModel = new FileSearch();
-        $dataProvider = $searchModel->search(\Yii::$app->request->queryParams);
+        $fileSearchModel = UploadManager::getInstance()->fileSearchModel;
+        if ($fileSearchModel) {
+            $searchModel = new FileSearch();
+            $dataProvider = $searchModel->search(\Yii::$app->request->queryParams);
+        } else {
+            $fileModel = UploadManager::getInstance()->fileModel;
+            $dataProvider = new ActiveDataProvider([
+                'query' => $fileModel::find()
+            ]);
+        }
+
         return $dataProvider;
     }
-
 
 
     /**
@@ -104,8 +119,9 @@ class UploadController extends ActiveController
      */
     public function actionView($id)
     {
-        $file = UploadmanagerFiles::findOne($id);
-        if(!$file){
+        $modelCalssName = UploadManager::getInstance()->fileModel;
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
             throw new NotFoundHttpException("File not found");
         }
         return $file;
@@ -124,11 +140,12 @@ class UploadController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $file = UploadmanagerFiles::findOne($id);
-        if(!$file){
+        $modelCalssName = UploadManager::getInstance()->fileModel;
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
             throw new NotFoundHttpException("File not found");
         }
-        if($file->delete()){
+        if ($file->delete()) {
             return [
                 'message' => 'File deleted.'
             ];
@@ -151,10 +168,10 @@ class UploadController extends ActiveController
     {
         /** @var UploadmanagerFiles[] $files */
         $files = [];
-        foreach ($_FILES as $name => $file){
+        foreach ($_FILES as $name => $file) {
             $files[] = Upload::directUpload($name, $isBase64);
         }
-        if(count($files) > 0){
+        if (count($files) > 0) {
             return $files;
         }
         throw new BadRequestHttpException("File not found.");
@@ -163,21 +180,23 @@ class UploadController extends ActiveController
     /**
      * Load file from server by id.
      *
-     * @param integer   $id
+     * @param integer $id
      *
      * @return bool|string|NotFoundHttpException
      * @throws NotFoundHttpException
      *
      * @author Amin Keshavarz <Amin@keshavarz.pro>
      */
-    public function actionLoad($id){
-        $file = UploadmanagerFiles::findOne($id);
-        if(!$file){
+    public function actionLoad($id)
+    {
+        $modelCalssName = UploadManager::getInstance()->fileModel;
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
             return new NotFoundHttpException("File not found in db");
         }
 
-        $path = $file->getPath(null , true);
-        if(!$path){
+        $path = $file->getPath(null, true);
+        if (!$path) {
             throw new NotFoundHttpException("File not found");
         }
 
