@@ -37,8 +37,8 @@ class FileSearch extends File
             ],
             'sort' => [
                 'defaultOrder' => [
-                    'createTime' => SORT_DESC,
-                    'updateTime' => SORT_DESC,
+                    'create_at' => SORT_DESC,
+                    'update_at' => SORT_DESC,
                 ]
             ]
         ]);

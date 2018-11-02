@@ -1,6 +1,7 @@
 <?php
 
 namespace aminkt\uploadManager\interfaces;
+use yii\web\UploadedFile;
 
 /**
  * Class FileInterface
@@ -24,6 +25,24 @@ interface FileInterface
      * @return string|boolean
      */
     public static function getUploadedFileDir($dir);
+
+
+    /**
+     * In upload time upload module will get file from request and set them into files container in model.
+     * this method handle this.
+     *
+     * @param UploadedFile $file
+     *
+     * @return void
+     */
+    public function setFilesContainer($file);
+
+    /**
+     * Set id of user who uploaded current file.
+     * @param $userId
+     * @return void
+     */
+    public function setUserId($userId);
 
     /**
      * Return model file type code.
@@ -68,7 +87,17 @@ interface FileInterface
      *
      * @author Amin Keshavarz <amin@keshavarz.pro>
      */
-    public function getPath($size = null, $returnNullIfNotExists=false);
+    public function getPath($size = null);
+
+
+    /**
+     * Get meta data of file.
+     *
+     * @param null|string $name Meta name.
+     *
+     * @return array|string
+     */
+    public function getMeta($metaName);
 
     /**
      * Return orginal file name.

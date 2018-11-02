@@ -3,6 +3,7 @@
 namespace aminkt\uploadManager\api\v1\controllers;
 
 use aminkt\uploadManager\components\Upload;
+use aminkt\uploadManager\interfaces\FileInterface;
 use aminkt\uploadManager\models\FileSearch;
 use aminkt\uploadManager\models\UploadmanagerFiles;
 use aminkt\uploadManager\UploadManager;
@@ -190,6 +191,7 @@ class UploadController extends ActiveController
     public function actionLoad($id)
     {
         $modelCalssName = UploadManager::getInstance()->fileClass;
+        /** @var FileInterface $file */
         $file = $modelCalssName::findOne($id);
         if (!$file) {
             return new NotFoundHttpException("File not found in db");
@@ -207,8 +209,8 @@ class UploadController extends ActiveController
         // Return file
         // Allow to read Content Disposition (so we can read the file name on the client side)
         header('Access-Control-Expose-Headers: Content-Disposition');
-        header('Content-Type: ' . $file->tags['type']);
-        header('Content-Length: ' . $file->tags['size']);
+        header('Content-Type: ' . $file->getMeta('type'));
+        header('Content-Length: ' . $file->getMeta('size'));
         header('Content-Disposition: inline; filename="' . $file['name'] . '"');
 
         echo $content;

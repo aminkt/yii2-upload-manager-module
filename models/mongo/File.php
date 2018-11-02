@@ -58,11 +58,11 @@ class File extends \yii\mongodb\ActiveRecord implements FileInterface, FileConst
             [
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['createTime', 'updateTime'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updateTime'],
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['create_at', 'update_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['update_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
-                'value' => new Expression('NOW()'),
+                'value' => new \MongoDB\BSON\UTCDateTime(time()),
             ],
         ];
     }
@@ -118,10 +118,10 @@ class File extends \yii\mongodb\ActiveRecord implements FileInterface, FileConst
         return [
             'id',
             'file_name' => 'fileName',
-            'file_type' => 'fileTypeCode',
-            'file_extension',
-            'file_url',
-            'thumbnails' => 'thumbnailUrls'
+            'file_type' => 'typeLabel',
+            'file_extension' => 'extension',
+            'file_url' => 'url',
+            'thumbnails' => 'tumbnailUrls'
         ];
     }
 }

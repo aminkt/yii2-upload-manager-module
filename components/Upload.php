@@ -3,6 +3,7 @@
 namespace aminkt\uploadManager\components;
 
 use aminkt\uploadManager\classes\UploadedBase64File;
+use aminkt\uploadManager\interfaces\FileInterface;
 use yii\base\Component;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -40,17 +41,18 @@ class Upload extends Component
 
         $fileModelName = \aminkt\uploadManager\UploadManager::getInstance()->fileClass;
 
+        /** @var FileInterface $model */
         if($isBase64){
             $model = new $fileModelName();
-            $model->filesContainer = UploadedBase64File::uploadBase64File($input);
+            $model->setFilesContainer(UploadedBase64File::uploadBase64File($input));
         }elseif($file = UploadedFile::getInstanceByName($input)){
             $model = new $fileModelName();
-            $model->filesContainer = $file;
+            $model->setFilesContainer($file);
         }elseif($files = UploadedFile::getInstancesByName($input)){
             $count = count($files);
             if($count == 1){
                 $model = new $fileModelName();
-                $model->filesContainer = $files[0];
+                $model->setFilesContainer($files[0]);
             }else{
                 throw new BadRequestHttpException("Just one file can uploaded directly");
             }
@@ -60,7 +62,7 @@ class Upload extends Component
 
 
         if ($userId = \Yii::$app->getUser()->getId()) {
-            $model->userId = $userId;
+            $model->setUserId($userId);
             if ($model->upload($uploadPath, $size)) {
                 //Now save file data to database
                 $model->save();

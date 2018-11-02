@@ -10,6 +10,8 @@ use yii\web\NotFoundHttpException;
 
 /**
  * uploadManager module definition class
+ *
+ * @property string uploadBaseUrl
  */
 class UploadManager extends \yii\base\Module
 {
@@ -132,7 +134,7 @@ class UploadManager extends \yii\base\Module
      *
      * @return string
      */
-    public function getUploadUrl(){
+    public function getUploadBaseUrl(){
         if(!$this->baseUrl){
             $this->baseUrl =  \Yii::$app->getUrlManager()->getHostInfo() . \Yii::$app->getUrlManager()->getBaseUrl();
         }

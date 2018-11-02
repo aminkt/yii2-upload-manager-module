@@ -186,21 +186,21 @@ trait FileTrait
     public function getTypeLabel(){
         switch ($this->file_type){
             case static::FILE_TYPE_IMAGE:
-                return 'تصویر';
+                return 'image';
             case static::FILE_TYPE_VIDEO:
-                return 'ویدئو';
+                return 'video';
             case static::FILE_TYPE_AUDIO:
-                return 'صدا';
+                return 'voice';
             case static::FILE_TYPE_ARCHIVE:
-                return 'فایل فشرده';
+                return 'archive_file';
             case static::FILE_TYPE_DOCUMENT:
-                return 'اسناد';
+                return 'document';
             case static::FILE_TYPE_APPLICATION:
-                return 'نرم افزار';
+                return 'application';
             case static::FILE_TYPE_UNDEFINED:
-                return 'تعیین نشده';
+                return 'undifined';
             default:
-                return 'خطا در دریافت اطلاعات';
+                return 'error_on_catch';
         }
     }
 
@@ -223,7 +223,7 @@ trait FileTrait
         else
             $address = self::getFileDirectory($this->file) . '/' . $this->name;
 
-        $uploadUrl = Yii::$app->getModule('uploadManager')->uploadUrl;
+        $uploadUrl = UploadManager::getInstance()->uploadBaseUrl;
         return $uploadUrl . '/' . $address;
     }
 
@@ -237,21 +237,20 @@ trait FileTrait
      *
      * @author Amin Keshavarz <amin@keshavarz.pro>
      */
-    public function getPath($size = null, $returnNullIfNotExists=false)
+    public function getPath($size = null)
     {
         if ($size)
             $address = self::getFileDirectory($this->file) . '/' . $size . '_' . $this->name;
         else
             $address = self::getFileDirectory($this->file) . '/' . $this->name;
 
-        $uploadPath = Yii::$app->getModule('uploadManager')->uploadPath;
-        $noImage = Yii::$app->getModule('uploadManager')->noImage;
+        $uploadPath = UploadManager::getInstance()->uploadPath;
 
         $p = FileHelper::normalizePath($uploadPath . '/' . $address);
         if (file_exists($p))
             return FileHelper::normalizePath($uploadPath . '/' . $address);
         else
-            return $returnNullIfNotExists? null : FileHelper::normalizePath($uploadPath . '/' . $noImage);
+            return null;
     }
 
     /**
@@ -276,6 +275,22 @@ trait FileTrait
         }else{
             Yii::warning("Can not delete file {$path}");
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setFilesContainer($file){
+        $this->filesContainer = $file;
+    }
+
+    /**
+     * set uploader user id.
+     *
+     * @param $userId
+     */
+    public function setUserId($userId){
+        $this->user_id = $userId;
     }
 
     /**
