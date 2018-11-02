@@ -17,18 +17,18 @@ class m160915_111512_init extends Migration
 //
 //        ]);
 
-        $this->createTable("{{%uploadmanager_files}}", [
+        $this->createTable("{{%files}}", [
             'id'=>$this->primaryKey(),
             'name'=>$this->string(191),
             'description'=>$this->string(191),
             'file'=>$this->string(191)->unique(),
             'extension'=>$this->string(20),
-            'metaData'=>$this->text(),
-            'extraData'=>$this->text(),
+            'meta_data'=>$this->text(),
+            'extra_data'=>$this->text(),
             'status'=>$this->smallInteger(1),
-            'fileType'=>$this->smallInteger(2),
-            'updateTime'=>$this->dateTime(),
-            'createTime'=>$this->dateTime()
+            'file_type'=>$this->smallInteger(2),
+            'update_at'=>$this->dateTime(),
+            'create_at'=>$this->dateTime()
         ]);
 
 
@@ -41,10 +41,10 @@ class m160915_111512_init extends Migration
 //        $this->dropForeignKey('uploadManager_album_file_fk', '{{%uploadManager_albums}}');
 //        $this->dropForeignKey('uploadManager_file_album_fk', '{{%uploadManager_files}}');
 
-        $this->truncateTable("{{%uploadmanager_files}}");
+        $this->truncateTable("{{%files}}");
 //        $this->truncateTable("{{%uploadManager_albums}}");
 
-        $this->dropTable("{{%uploadmanager_files}}");
+        $this->dropTable("{{%files}}");
 //        $this->dropTable("{{%uploadManager_albums}}");
     }
 }

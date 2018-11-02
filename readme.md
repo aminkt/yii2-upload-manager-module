@@ -6,12 +6,12 @@ Then add flowing lines into your application config:
 'uploadManager' => [
     'class' => aminkt\uploadManager\UploadManager::class,
     'uploadPath'=>Yii::getAlias("@frontendWeb")."/upload",
-    'uploadUrl'=> $params['site']."/upload",
+    'uploadUrl'=> "/upload",
+    'baseUrl' => 'http://localhost:800',
     'acceptedFiles'=>"*",
     'userClass' => 'user/class/namespcae',
-    'fileCalss' => 'file/class/namespcae', // Don't set this to use default active record.
+    'fileClass' => 'file/class/namespcae', // Don't set this to use default active record.
     'fileSearchClass' => 'file/search/class/namespcae', // Don't set this to use default search active record.
-    'fileIcon' => $params['site'] . "/upload/image_not_found.jpg"
 ],
 ```
 

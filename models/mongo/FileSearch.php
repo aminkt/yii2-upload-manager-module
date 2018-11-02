@@ -1,5 +1,5 @@
 <?php
-namespace aminkt\uploadManager\models;
+namespace aminkt\uploadManager\models\mongo;
 
 use aminkt\uploadManager\UploadManager;
 use yii\data\ActiveDataProvider;
@@ -14,8 +14,8 @@ class FileSearch extends File
     public function rules()
     {
         return [
-            [['id', 'user_id', 'file_type', 'status'], 'integer'],
-            [['name', 'description', 'file', 'file_name'], 'string'],
+            [['_id', 'user_id', 'file_type', 'status'], 'integer'],
+            [['name', 'description', 'file', 'fileName'], 'string'],
             [['update_at', 'create_at'], 'each', 'rule' => ['datetime']]
         ];
     }
@@ -28,7 +28,7 @@ class FileSearch extends File
      * @return ActiveDataProvider
      */
     public function search($params){
-        $query = UploadmanagerFiles::find();
+        $query = File::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -37,8 +37,8 @@ class FileSearch extends File
             ],
             'sort' => [
                 'defaultOrder' => [
-                    'create_at' => SORT_DESC,
-                    'update_at' => SORT_DESC,
+                    'createTime' => SORT_DESC,
+                    'updateTime' => SORT_DESC,
                 ]
             ]
         ]);
@@ -73,22 +73,12 @@ class FileSearch extends File
 
         }
 
-
-        // Time filtering
-        if (isset($this->update_at[0])) {
-            $query->andFilterWhere(['>=', 'update_at', $this->update_at[0]]);
+        if ($this->updateTime) {
+            $query->andFilterWhere(['between', 'update_at', $this->filterUpdateAt[0], $this->filterUpdateAt[1]]);
         }
 
-        if (isset($this->update_at[1])) {
-            $query->andFilterWhere(['<=', 'update_at', $this->update_at[1]]);
-        }
-
-        if (isset($this->create_at[0])) {
-            $query->andFilterWhere(['>=', 'create_at', $this->create_at[0]]);
-        }
-
-        if (isset($this->create_at[1])) {
-            $query->andFilterWhere(['<=', 'create_at', $this->create_at[1]]);
+        if ($this->createTime) {
+            $query->andFilterWhere(['between', 'create_at', $this->filterCreateAt[0], $this->filterCreateAt[1]]);
         }
 
         return $dataProvider;

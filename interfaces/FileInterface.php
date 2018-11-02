@@ -78,4 +78,18 @@ interface FileInterface
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
     public function getFileName();
+
+    /**
+     * Delete all instance of current file from server.
+     *
+     * @return void
+     */
+    public function deleteFiles();
+
+    /**
+     * Return id of file.
+     *
+     * @return mixed
+     */
+    public function getId();
 }

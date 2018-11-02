@@ -32,8 +32,8 @@ class UploadController extends ActiveController
 
     public function init()
     {
+        $this->modelClass = UploadManager::getInstance()->fileClass;
         parent::init();
-        $this->modelClass = UploadManager::getInstance()->fileModel;
     }
 
     public function behaviors()
@@ -61,8 +61,8 @@ class UploadController extends ActiveController
         $behaviors['authenticator'] = [
             'class' => CompositeAuth::className(),
             'authMethods' => [
-                HttpBasicAuth::className(),
                 HttpBearerAuth::className(),
+                HttpBasicAuth::className(),
                 QueryParamAuth::className(),
             ],
             'except' => ['options'],
@@ -90,12 +90,12 @@ class UploadController extends ActiveController
      */
     public function actionIndex()
     {
-        $fileSearchModel = UploadManager::getInstance()->fileSearchModel;
+        $fileSearchModel = UploadManager::getInstance()->fileSearchClass;
         if ($fileSearchModel) {
-            $searchModel = new FileSearch();
+            $searchModel = new $fileSearchModel();
             $dataProvider = $searchModel->search(\Yii::$app->request->queryParams);
         } else {
-            $fileModel = UploadManager::getInstance()->fileModel;
+            $fileModel = UploadManager::getInstance()->fileClass;
             $dataProvider = new ActiveDataProvider([
                 'query' => $fileModel::find()
             ]);
@@ -119,7 +119,7 @@ class UploadController extends ActiveController
      */
     public function actionView($id)
     {
-        $modelCalssName = UploadManager::getInstance()->fileModel;
+        $modelCalssName = UploadManager::getInstance()->fileClass;
         $file = $modelCalssName::findOne($id);
         if (!$file) {
             throw new NotFoundHttpException("File not found");
@@ -140,7 +140,7 @@ class UploadController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $modelCalssName = UploadManager::getInstance()->fileModel;
+        $modelCalssName = UploadManager::getInstance()->fileClass;
         $file = $modelCalssName::findOne($id);
         if (!$file) {
             throw new NotFoundHttpException("File not found");
@@ -189,7 +189,7 @@ class UploadController extends ActiveController
      */
     public function actionLoad($id)
     {
-        $modelCalssName = UploadManager::getInstance()->fileModel;
+        $modelCalssName = UploadManager::getInstance()->fileClass;
         $file = $modelCalssName::findOne($id);
         if (!$file) {
             return new NotFoundHttpException("File not found in db");

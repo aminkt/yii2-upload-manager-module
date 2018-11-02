@@ -2,6 +2,12 @@
 
 namespace aminkt\uploadManager\traits;
 
+use aminkt\uploadManager\UploadManager;
+use yii\helpers\FileHelper;
+use yii\helpers\Json;
+use yii\imagine\Image;
+use yii\web\UploadedFile;
+
 /**
  * Trait FileTrait
  * Implement some usefull function for File active record that you should use it in you model.
@@ -21,14 +27,19 @@ trait FileTrait
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules($isMongo = false)
     {
-
+        $userCalssName = UploadManager::getInstance()->userClass;
+        $idColName = $isMongo ? '_id' : 'id';
         return [
-            [['metaData', 'extraData'], 'string'],
-            [['userId'], 'integer'],
+            [['meta_data', 'extra_data'], 'string'],
+            [['user_id'], 'exist',
+                'skipOnError' => true,
+                'targetClass' => $userCalssName,
+                'targetAttribute' => ['user_id' => $idColName]
+            ],
             [['status'], 'in', 'range' => [static::STATUS_DISABLE, static::STATUS_ENABLE]],
-            [['fileType'], 'in', 'range' => [
+            [['file_type'], 'in', 'range' => [
                 static::FILE_TYPE_IMAGE,
                 static::FILE_TYPE_VIDEO,
                 static::FILE_TYPE_AUDIO,
@@ -106,6 +117,30 @@ trait FileTrait
         }
     }
 
+    /**
+     * Serialize file metadata.
+     * If you are using mongo db change this method to return just an array.
+     *
+     * @return mixed
+     */
+    protected function serializeMetaData(){
+        return Json::encode([
+            'name' => $this->filesContainer->name,
+            'type' => $this->filesContainer->type,
+            'size' => $this->filesContainer->size,
+            'error' => $this->filesContainer->error,
+        ]);
+    }
+
+    /**
+     * Deserialize meta data that serialized in uploading.
+     * If you are using mongo db change thi method to just return an array.
+     * @return mixed
+     */
+    protected function deserializeMetaData() {
+        return Json::decode($this->meta_data, true);
+    }
+
 
     /**
      * Upload file to defined directory
@@ -117,14 +152,9 @@ trait FileTrait
         if($this->filesContainer){
             $this->name = static::getUploadedFileName($this->filesContainer);
             $this->extension = $this->filesContainer->extension;
-            $this->metaData = Json::encode([
-                'name' => $this->filesContainer->name,
-                'type' => $this->filesContainer->type,
-                'size' => $this->filesContainer->size,
-                'error' => $this->filesContainer->error,
-            ]);
+            $this->meta_data = $this->serializeMetaData();
             $this->status = static::STATUS_ENABLE;
-            $this->fileType = static::getFileTypeCode($this->filesContainer);
+            $this->file_type = static::getFileTypeCode($this->filesContainer);
 
             if($directory = static::getUploadedFileDir($dir)){
                 $this->file = $directory.'/'.$this->name;
@@ -134,7 +164,7 @@ trait FileTrait
                         $file = $this->file;
                     }
 
-                    if($this->fileType == self::FILE_TYPE_IMAGE and $file) {
+                    if($this->file_type == self::FILE_TYPE_IMAGE and $file) {
                         foreach ($sizes as $key=>$size){
                             $Imagin = Image::thumbnail(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file), $size[0], $size[1])
                                 ->save(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.$key.'_'.$this->name));
@@ -154,7 +184,7 @@ trait FileTrait
      * @inheritdoc
      */
     public function getTypeLabel(){
-        switch ($this->fileType){
+        switch ($this->file_type){
             case static::FILE_TYPE_IMAGE:
                 return 'تصویر';
             case static::FILE_TYPE_VIDEO:
@@ -185,7 +215,7 @@ trait FileTrait
      */
     public function getUrl($size = null)
     {
-        $meta = Json::decode($this->metaData, true);
+        $meta = $this->deserializeMetaData();
         $type = $meta['type'];
         $type = explode('/', $type);
         if ($size and $type[0] == 'image')
@@ -249,6 +279,25 @@ trait FileTrait
     }
 
     /**
+     * Return list of tumbnail of files.
+     *
+     * @return array
+     */
+    public function getTumbnailUrls(){
+        if($this->file_type != static::FILE_TYPE_IMAGE) {
+            return [];
+        }
+        $sizes = UploadManager::getInstance()->sizes;
+        $urls = [];
+        foreach ($sizes as $name=>$size){
+            $url = $this->getUrl($name);
+            $urls[$name] = $url;
+        }
+
+        return $urls;
+    }
+
+    /**
      * Return orginal file name.
      *
      * @return string
@@ -257,6 +306,22 @@ trait FileTrait
      */
     public function getFileName(){
         return $this->getMeta('name');
+    }
+
+
+    /**
+     * Get meta data
+     *
+     * @param null|string $name Meta name.
+     *
+     * @return array|string
+     */
+    public function getMeta($name = null){
+        $meta = $this->deserializeMetaData();
+        if($name){
+            return $meta[$name];
+        }
+        return $meta;
     }
 
     /**
@@ -277,5 +342,19 @@ trait FileTrait
             }
         }
         return $f;
+    }
+
+
+
+    /**
+     * Return user class.
+     *
+     * @return null|static
+     */
+    public function getOwner(){
+        /** @var ActiveRecord $userClass */
+        $userClass = UploadManager::getInstance()->userClass;
+        $user = $userClass::findOne($this->user_id);
+        return $user;
     }
 }

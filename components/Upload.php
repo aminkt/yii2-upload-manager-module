@@ -38,7 +38,7 @@ class Upload extends Component
         $uploadPath = $module->uploadPath;
         $size = $module->sizes;
 
-        $fileModelName = \aminkt\uploadManager\UploadManager::getInstance()->fileModel;
+        $fileModelName = \aminkt\uploadManager\UploadManager::getInstance()->fileClass;
 
         if($isBase64){
             $model = new $fileModelName();
