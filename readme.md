@@ -49,22 +49,22 @@ echo Html::hiddenInput('target', $model->id, ['class'=>'target']);
 Use Upload manager api to upload and fetch files
 -------------
 
-First add flowing rutes to your api url manager:
+First add flowing routes to your api url manager:
 
 
 ```php
 [
     'class' => 'yii\rest\UrlRule',
     'pluralize' => false,
-    'controller' => ['v2/upload' => 'uploadManager/apiV1/upload'],
+    'controller' => ['v2/upload' => 'uploadManager/v1/upload'],
     'extraPatterns' => [
         'GET load/<id:\d+>' => 'load',
     ]
 ],
 ```
 
-Top code means that use uploadManager api version 1 from v2/upload rutes.
-Flowing rutes now available:
+Top code means that use uploadManager api version 1 from v2/upload route.
+Flowing routes now available:
 
 ```text
 GET /v2/upload      // List of all files that user uploaded.
