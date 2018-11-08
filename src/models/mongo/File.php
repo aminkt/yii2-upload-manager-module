@@ -62,7 +62,7 @@ class File extends \yii\mongodb\ActiveRecord implements FileInterface, FileConst
                     ActiveRecord::EVENT_BEFORE_UPDATE => ['update_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
-                'value' => new \MongoDB\BSON\UTCDateTime(time()),
+                'value' => new \MongoDB\BSON\UTCDateTime(time() + 1000),
             ],
         ];
     }
