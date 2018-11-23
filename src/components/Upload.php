@@ -57,7 +57,7 @@ class Upload extends Component
                 throw new BadRequestHttpException("Just one file can uploaded directly");
             }
         }else{
-            throw new BadRequestHttpException("فایل به سرور ارسال نشد.");
+            throw new BadRequestHttpException("File not send to server.");
         }
 
 
@@ -69,10 +69,10 @@ class Upload extends Component
                 return $model;
             }else{
                 \Yii::error($model->getErrors());
-                throw new ServerErrorHttpException("فایل در سرور ذخیره نشد.");
+                throw new ServerErrorHttpException("File not saved in server.");
             }
         } else {
-            throw new ForbiddenHttpException("شما دسترسی مجاز برای ارسال فایل را ندارید.");
+            throw new ForbiddenHttpException("You have not correct access to upload file.");
         }
 
     }

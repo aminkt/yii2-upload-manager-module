@@ -15,6 +15,7 @@ use yii\filters\auth\QueryParamAuth;
 use yii\rest\ActiveController;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\ServerErrorHttpException;
 
 
 /**
@@ -147,9 +148,10 @@ class UploadController extends ActiveController
             throw new NotFoundHttpException("File not found");
         }
         if ($file->delete()) {
-            return [
-                'message' => 'File deleted.'
-            ];
+            \Yii::$app->getResponse()->setStatusCode(204);
+
+        } else {
+            throw new ServerErrorHttpException("File did not delete.");
         }
     }
 
@@ -175,7 +177,7 @@ class UploadController extends ActiveController
         if (count($files) > 0) {
             return $files;
         }
-        throw new BadRequestHttpException("File not found.");
+        throw new BadRequestHttpException("There is no file to upload.");
     }
 
     /**

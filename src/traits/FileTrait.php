@@ -160,9 +160,17 @@ trait FileTrait
                 $this->file = $directory.'/'.$this->name;
                 if ($this->validate()){
                     $file = false;
-                    if($this->filesContainer->saveAs(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file))){
-                        $file = $this->file;
+
+                    if (YII_ENV_TEST) {
+                        if(copy($this->filesContainer->tempName, FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file))){
+                            $file = $this->file;
+                        }
+                    } else {
+                        if($this->filesContainer->saveAs(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file))){
+                            $file = $this->file;
+                        }
                     }
+
 
                     if($this->file_type == self::FILE_TYPE_IMAGE and $file) {
                         foreach ($sizes as $key=>$size){
