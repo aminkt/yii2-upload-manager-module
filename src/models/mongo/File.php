@@ -42,6 +42,7 @@ class File extends \yii\mongodb\ActiveRecord implements FileInterface, FileConst
 {
     use FileTrait {
       rules as traitRules;
+      fields as traitFields;
     }
 
     /**
@@ -115,13 +116,6 @@ class File extends \yii\mongodb\ActiveRecord implements FileInterface, FileConst
      */
     public function fields()
     {
-        return [
-            'id',
-            'file_name' => 'fileName',
-            'file_type' => 'typeLabel',
-            'file_extension' => 'extension',
-            'file_url' => 'url',
-            'thumbnails' => 'tumbnailUrls'
-        ];
+        return $this->traitFields();
     }
 }

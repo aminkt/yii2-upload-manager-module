@@ -35,6 +35,7 @@ class File extends \yii\db\ActiveRecord implements FileInterface, FileConstantsI
 {
     use FileTrait {
         rules as traitRuels;
+        fields as traitFields;
     };
     /**
      * @inheritdoc
@@ -74,15 +75,7 @@ class File extends \yii\db\ActiveRecord implements FileInterface, FileConstantsI
      */
     public function fields()
     {
-        return [
-            'id',
-            'name',
-            'description',
-            'extension',
-            'type',
-            'owner',
-            'url'
-        ];
+        return $this->traitFields();
     }
 
     public function rules()

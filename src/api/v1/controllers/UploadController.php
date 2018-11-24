@@ -196,7 +196,7 @@ class UploadController extends ActiveController
         /** @var FileInterface $file */
         $file = $modelCalssName::findOne($id);
         if (!$file) {
-            return new NotFoundHttpException("File not found in db");
+            throw new NotFoundHttpException("File not found in db.");
         }
 
         $path = $file->getPath(null, true);

@@ -367,7 +367,21 @@ trait FileTrait
         return $f;
     }
 
-
+    /**
+     * Return api fields.
+     */
+    public function fields()
+    {
+        return [
+            'id',
+            'file_name' => 'fileName',
+            'file_type' => 'typeLabel',
+            'file_extension' => 'extension',
+            'size' => function($model) { return $model->getMeta('size'); },
+            'file_url' => 'url',
+            'thumbnails' => 'tumbnailUrls'
+        ];
+    }
 
     /**
      * Return user class.
