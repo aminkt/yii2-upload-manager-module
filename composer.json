@@ -19,8 +19,9 @@
 		"faravaghi/yii2-jalali-datepicker": "*"
 	},
 	"autoload": {
-		"psr-4": {
-			"aminkt\\uploadManager\\": ""
-		}
+		"psr-4": {"aminkt\\uploadManager\\": "src"}
+	},
+	"autoload-dev": {
+		"psr-4": {"aminkt\\uploadManager\\test": "test"}
 	}
 }

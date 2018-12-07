@@ -3,7 +3,7 @@
 namespace aminkt\uploadManager\components;
 
 use aminkt\uploadManager\classes\UploadedBase64File;
-use aminkt\uploadManager\models\UploadmanagerFiles;
+use aminkt\uploadManager\interfaces\FileInterface;
 use yii\base\Component;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -25,7 +25,7 @@ class Upload extends Component
      * @param string $input    Input name.
      * @param bool   $isBase64 Upload an base64 encoded file.
      *
-     * @return \aminkt\uploadManager\models\UploadmanagerFiles
+     * @return \aminkt\uploadManager\interfaces\FileInterface
      *
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\web\ForbiddenHttpException
@@ -39,37 +39,40 @@ class Upload extends Component
         $uploadPath = $module->uploadPath;
         $size = $module->sizes;
 
+        $fileModelName = \aminkt\uploadManager\UploadManager::getInstance()->fileClass;
+
+        /** @var FileInterface $model */
         if($isBase64){
-            $model = new UploadmanagerFiles();
-            $model->filesContainer = UploadedBase64File::uploadBase64File($input);
+            $model = new $fileModelName();
+            $model->setFilesContainer(UploadedBase64File::uploadBase64File($input));
         }elseif($file = UploadedFile::getInstanceByName($input)){
-            $model = new UploadmanagerFiles();
-            $model->filesContainer = $file;
+            $model = new $fileModelName();
+            $model->setFilesContainer($file);
         }elseif($files = UploadedFile::getInstancesByName($input)){
             $count = count($files);
             if($count == 1){
-                $model = new UploadmanagerFiles();
-                $model->filesContainer = $files[0];
+                $model = new $fileModelName();
+                $model->setFilesContainer($files[0]);
             }else{
                 throw new BadRequestHttpException("Just one file can uploaded directly");
             }
         }else{
-            throw new BadRequestHttpException("فایل به سرور ارسال نشد.");
+            throw new BadRequestHttpException("File not send to server.");
         }
 
 
         if ($userId = \Yii::$app->getUser()->getId()) {
-            $model->userId = $userId;
+            $model->setUserId($userId);
             if ($model->upload($uploadPath, $size)) {
                 //Now save file data to database
                 $model->save();
                 return $model;
             }else{
                 \Yii::error($model->getErrors());
-                throw new ServerErrorHttpException("فایل در سرور ذخیره نشد.");
+                throw new ServerErrorHttpException("File not saved in server.");
             }
         } else {
-            throw new ForbiddenHttpException("شما دسترسی مجاز برای ارسال فایل را ندارید.");
+            throw new ForbiddenHttpException("You have not correct access to upload file.");
         }
 
     }

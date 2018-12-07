@@ -3,15 +3,19 @@
 namespace aminkt\uploadManager\api\v1\controllers;
 
 use aminkt\uploadManager\components\Upload;
+use aminkt\uploadManager\interfaces\FileInterface;
 use aminkt\uploadManager\models\FileSearch;
 use aminkt\uploadManager\models\UploadmanagerFiles;
-use yii\rest\ActiveController;
+use aminkt\uploadManager\UploadManager;
+use yii\data\ActiveDataProvider;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\auth\QueryParamAuth;
+use yii\rest\ActiveController;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\ServerErrorHttpException;
 
 
 /**
@@ -23,11 +27,16 @@ use yii\web\NotFoundHttpException;
  */
 class UploadController extends ActiveController
 {
-    public $modelClass = Business::class;
     public $serializer = [
         'class' => 'yii\rest\Serializer',
         'collectionEnvelope' => 'data',
     ];
+
+    public function init()
+    {
+        $this->modelClass = UploadManager::getInstance()->fileClass;
+        parent::init();
+    }
 
     public function behaviors()
     {
@@ -54,8 +63,8 @@ class UploadController extends ActiveController
         $behaviors['authenticator'] = [
             'class' => CompositeAuth::className(),
             'authMethods' => [
-                HttpBasicAuth::className(),
                 HttpBearerAuth::className(),
+                HttpBasicAuth::className(),
                 QueryParamAuth::className(),
             ],
             'except' => ['options'],
@@ -83,11 +92,19 @@ class UploadController extends ActiveController
      */
     public function actionIndex()
     {
-        $searchModel = new FileSearch();
-        $dataProvider = $searchModel->search(\Yii::$app->request->queryParams);
+        $fileSearchModel = UploadManager::getInstance()->fileSearchClass;
+        if ($fileSearchModel) {
+            $searchModel = new $fileSearchModel();
+            $dataProvider = $searchModel->search(\Yii::$app->request->queryParams);
+        } else {
+            $fileModel = UploadManager::getInstance()->fileClass;
+            $dataProvider = new ActiveDataProvider([
+                'query' => $fileModel::find()
+            ]);
+        }
+
         return $dataProvider;
     }
-
 
 
     /**
@@ -104,8 +121,9 @@ class UploadController extends ActiveController
      */
     public function actionView($id)
     {
-        $file = UploadmanagerFiles::findOne($id);
-        if(!$file){
+        $modelCalssName = UploadManager::getInstance()->fileClass;
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
             throw new NotFoundHttpException("File not found");
         }
         return $file;
@@ -124,14 +142,16 @@ class UploadController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $file = UploadmanagerFiles::findOne($id);
-        if(!$file){
+        $modelCalssName = UploadManager::getInstance()->fileClass;
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
             throw new NotFoundHttpException("File not found");
         }
-        if($file->delete()){
-            return [
-                'message' => 'File deleted.'
-            ];
+        if ($file->delete()) {
+            \Yii::$app->getResponse()->setStatusCode(204);
+
+        } else {
+            throw new ServerErrorHttpException("File did not delete.");
         }
     }
 
@@ -151,33 +171,36 @@ class UploadController extends ActiveController
     {
         /** @var UploadmanagerFiles[] $files */
         $files = [];
-        foreach ($_FILES as $name => $file){
+        foreach ($_FILES as $name => $file) {
             $files[] = Upload::directUpload($name, $isBase64);
         }
-        if(count($files) > 0){
+        if (count($files) > 0) {
             return $files;
         }
-        throw new BadRequestHttpException("File not found.");
+        throw new BadRequestHttpException("There is no file to upload.");
     }
 
     /**
      * Load file from server by id.
      *
-     * @param integer   $id
+     * @param integer $id
      *
      * @return bool|string|NotFoundHttpException
      * @throws NotFoundHttpException
      *
      * @author Amin Keshavarz <Amin@keshavarz.pro>
      */
-    public function actionLoad($id){
-        $file = UploadmanagerFiles::findOne($id);
-        if(!$file){
-            return new NotFoundHttpException("File not found in db");
+    public function actionLoad($id)
+    {
+        $modelCalssName = UploadManager::getInstance()->fileClass;
+        /** @var FileInterface $file */
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
+            throw new NotFoundHttpException("File not found in db.");
         }
 
-        $path = $file->getPath(null , true);
-        if(!$path){
+        $path = $file->getPath(null, true);
+        if (!$path) {
             throw new NotFoundHttpException("File not found");
         }
 
@@ -188,8 +211,8 @@ class UploadController extends ActiveController
         // Return file
         // Allow to read Content Disposition (so we can read the file name on the client side)
         header('Access-Control-Expose-Headers: Content-Disposition');
-        header('Content-Type: ' . $file->tags['type']);
-        header('Content-Length: ' . $file->tags['size']);
+        header('Content-Type: ' . $file->getMeta('type'));
+        header('Content-Length: ' . $file->getMeta('size'));
         header('Content-Disposition: inline; filename="' . $file['name'] . '"');
 
         echo $content;

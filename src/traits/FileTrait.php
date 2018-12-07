@@ -1,52 +1,23 @@
 <?php
 
-namespace aminkt\uploadManager\models;
+namespace aminkt\uploadManager\traits;
 
 use aminkt\uploadManager\UploadManager;
-use common\components\YiiJDF;
-use Yii;
-use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveRecord;
-use yii\db\Expression;
 use yii\helpers\FileHelper;
 use yii\helpers\Json;
 use yii\imagine\Image;
 use yii\web\UploadedFile;
 
 /**
- * This is the model class for table "{{%uploadmanager_files}}".
+ * Trait FileTrait
+ * Implement some usefull function for File active record that you should use it in you model.
  *
- * @property integer $id
- * @property integer $userId
- * @property string $name
- * @property string $description
- * @property string $file
- * @property string $extension
- * @property string $metaData
- * @property string $extraData
- * @property integer $status
- * @property integer $fileType
- * @property string $updateTime
- * @property string $createTime
+ * @package aminkt\uploadManager\traits
  *
- *
- * @property array $tags
- * @property array $type
- * @property string $fileName
+ * @author Amin Keshavarz <ak_1596@yahoo.com>
  */
-class UploadmanagerFiles extends \yii\db\ActiveRecord
+trait FileTrait
 {
-    const FILE_TYPE_IMAGE = 1;
-    const FILE_TYPE_VIDEO = 2;
-    const FILE_TYPE_AUDIO = 3;
-    const FILE_TYPE_ARCHIVE = 4;
-    const FILE_TYPE_DOCUMENT = 5;
-    const FILE_TYPE_APPLICATION = 6;
-    const FILE_TYPE_UNDEFINED = 7;
-
-    const STATUS_DISABLE = 0;
-    const STATUS_ENABLE = 1;
-
 
     /**
      * @var UploadedFile container of file uploaded
@@ -56,34 +27,27 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public function rules($isMongo = false)
     {
-        return "{{%uploadmanager_files}}";
-    }
-
-    public function behaviors()
-    {
+        $userCalssName = UploadManager::getInstance()->userClass;
+        $idColName = $isMongo ? '_id' : 'id';
         return [
-            [
-                'class' => TimestampBehavior::className(),
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['createTime', 'updateTime'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updateTime'],
-                ],
-                // if you're using datetime instead of UNIX timestamp:
-                'value' => new Expression('NOW()'),
+            [['meta_data', 'extra_data'], 'string'],
+            [['user_id'], 'exist',
+                'skipOnError' => true,
+                'targetClass' => $userCalssName,
+                'targetAttribute' => ['user_id' => $idColName]
             ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['metaData', 'extraData'], 'string'],
-            [['status', 'fileType', 'userId'], 'integer'],
+            [['status'], 'in', 'range' => [static::STATUS_DISABLE, static::STATUS_ENABLE]],
+            [['file_type'], 'in', 'range' => [
+                static::FILE_TYPE_IMAGE,
+                static::FILE_TYPE_VIDEO,
+                static::FILE_TYPE_AUDIO,
+                static::FILE_TYPE_ARCHIVE,
+                static::FILE_TYPE_DOCUMENT,
+                static::FILE_TYPE_APPLICATION,
+                static::FILE_TYPE_UNDEFINED,
+            ]],
             [['name', 'description', 'file'], 'string', 'max' => 255],
             [['extension'], 'string', 'max' => 20],
             [['file'], 'unique'],
@@ -153,6 +117,30 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * Serialize file metadata.
+     * If you are using mongo db change this method to return just an array.
+     *
+     * @return mixed
+     */
+    protected function serializeMetaData(){
+        return Json::encode([
+            'name' => $this->filesContainer->name,
+            'type' => $this->filesContainer->type,
+            'size' => $this->filesContainer->size,
+            'error' => $this->filesContainer->error,
+        ]);
+    }
+
+    /**
+     * Deserialize meta data that serialized in uploading.
+     * If you are using mongo db change thi method to just return an array.
+     * @return mixed
+     */
+    protected function deserializeMetaData() {
+        return Json::decode($this->meta_data, true);
+    }
+
 
     /**
      * Upload file to defined directory
@@ -164,24 +152,27 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         if($this->filesContainer){
             $this->name = static::getUploadedFileName($this->filesContainer);
             $this->extension = $this->filesContainer->extension;
-            $this->metaData = Json::encode([
-                'name' => $this->filesContainer->name,
-                'type' => $this->filesContainer->type,
-                'size' => $this->filesContainer->size,
-                'error' => $this->filesContainer->error,
-            ]);
+            $this->meta_data = $this->serializeMetaData();
             $this->status = static::STATUS_ENABLE;
-            $this->fileType = static::getFileTypeCode($this->filesContainer);
+            $this->file_type = static::getFileTypeCode($this->filesContainer);
 
             if($directory = static::getUploadedFileDir($dir)){
                 $this->file = $directory.'/'.$this->name;
                 if ($this->validate()){
                     $file = false;
-                    if($this->filesContainer->saveAs(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file))){
-                        $file = $this->file;
+
+                    if (YII_ENV_TEST) {
+                        if(copy($this->filesContainer->tempName, FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file))){
+                            $file = $this->file;
+                        }
+                    } else {
+                        if($this->filesContainer->saveAs(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file))){
+                            $file = $this->file;
+                        }
                     }
 
-                    if($this->fileType == self::FILE_TYPE_IMAGE and $file) {
+
+                    if($this->file_type == self::FILE_TYPE_IMAGE and $file) {
                         foreach ($sizes as $key=>$size){
                             $Imagin = Image::thumbnail(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file), $size[0], $size[1])
                                 ->save(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.$key.'_'.$this->name));
@@ -200,81 +191,25 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'name' => 'نام',
-            'description' => 'توضیحات',
-            'file' => 'File',
-            'extension' => 'پسوند',
-            'metaData' => 'اطلاعات الصاقی',
-            'extraData' => 'Extra Data',
-            'status' => 'وضعیت',
-            'fileType' => 'نوع فایل',
-            'createTime' => 'زمان ایجاد',
-            'type' => 'نوع فایل',
-        ];
-    }
-
-    /**
-     * Get meta data of file.
-     *
-     * @deprecated Use getMeta() instead of this method.
-     *
-     * @return array
-     */
-    public function getTags(){
-        return $this->getMeta();
-    }
-
-    /**
-     * Get meta data
-     *
-     * @param null|string $name Meta name.
-     *
-     * @return array|string
-     */
-    public function getMeta($name = null){
-        $meta = Json::decode($this->metaData);
-        if($name){
-            return $meta[$name];
-        }
-        return $meta;
-    }
-
-    public function getType(){
-        switch ($this->fileType){
+    public function getTypeLabel(){
+        switch ($this->file_type){
             case static::FILE_TYPE_IMAGE:
-                return 'تصویر';
+                return 'image';
             case static::FILE_TYPE_VIDEO:
-                return 'ویدئو';
+                return 'video';
             case static::FILE_TYPE_AUDIO:
-                return 'صدا';
+                return 'voice';
             case static::FILE_TYPE_ARCHIVE:
-                return 'فایل فشرده';
+                return 'archive_file';
             case static::FILE_TYPE_DOCUMENT:
-                return 'اسناد';
+                return 'document';
             case static::FILE_TYPE_APPLICATION:
-                return 'نرم افزار';
+                return 'application';
             case static::FILE_TYPE_UNDEFINED:
-                return 'تعیین نشده';
+                return 'undifined';
             default:
-                return 'خطا در دریافت اطلاعات';
+                return 'error_on_catch';
         }
-    }
-
-    public static function getFileDirectory($file){
-        $file = explode('/', $file);
-        $f = "";
-        $fSize = count($file);
-        for ($i=0; $i<$fSize-1; $i++){
-            $f.=$file[$i];
-            if($i != $fSize-2){
-                $f.="/";
-            }
-        }
-        return $f;
     }
 
     /**
@@ -288,7 +223,7 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
      */
     public function getUrl($size = null)
     {
-        $meta = Json::decode($this->metaData, true);
+        $meta = $this->deserializeMetaData();
         $type = $meta['type'];
         $type = explode('/', $type);
         if ($size and $type[0] == 'image')
@@ -296,7 +231,7 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         else
             $address = self::getFileDirectory($this->file) . '/' . $this->name;
 
-        $uploadUrl = Yii::$app->getModule('uploadManager')->uploadUrl;
+        $uploadUrl = UploadManager::getInstance()->uploadBaseUrl;
         return $uploadUrl . '/' . $address;
     }
 
@@ -310,28 +245,28 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
      *
      * @author Amin Keshavarz <amin@keshavarz.pro>
      */
-    public function getPath($size = null, $returnNullIfNotExists=false)
+    public function getPath($size = null)
     {
         if ($size)
             $address = self::getFileDirectory($this->file) . '/' . $size . '_' . $this->name;
         else
             $address = self::getFileDirectory($this->file) . '/' . $this->name;
 
-        $uploadPath = Yii::$app->getModule('uploadManager')->uploadPath;
-        $noImage = Yii::$app->getModule('uploadManager')->noImage;
+        $uploadPath = UploadManager::getInstance()->uploadPath;
 
         $p = FileHelper::normalizePath($uploadPath . '/' . $address);
         if (file_exists($p))
             return FileHelper::normalizePath($uploadPath . '/' . $address);
         else
-            return $returnNullIfNotExists? null : FileHelper::normalizePath($uploadPath . '/' . $noImage);
+            return null;
     }
 
     /**
-     * @inheritdoc
+     * Delete all instance of current file.
+     *
+     * @return void
      */
-    public function beforeDelete()
-    {
+    public function deleteFiles(){
         $sizes = UploadManager::getInstance()->sizes;
         foreach ($sizes as $name=>$size){
             $path = $this->getPath($name, true);
@@ -348,8 +283,41 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         }else{
             Yii::warning("Can not delete file {$path}");
         }
+    }
 
-        return parent::beforeDelete();
+    /**
+     * @inheritdoc
+     */
+    public function setFilesContainer($file){
+        $this->filesContainer = $file;
+    }
+
+    /**
+     * set uploader user id.
+     *
+     * @param $userId
+     */
+    public function setUserId($userId){
+        $this->user_id = $userId;
+    }
+
+    /**
+     * Return list of tumbnail of files.
+     *
+     * @return array
+     */
+    public function getTumbnailUrls(){
+        if($this->file_type != static::FILE_TYPE_IMAGE) {
+            return [];
+        }
+        $sizes = UploadManager::getInstance()->sizes;
+        $urls = [];
+        foreach ($sizes as $name=>$size){
+            $url = $this->getUrl($name);
+            $urls[$name] = $url;
+        }
+
+        return $urls;
     }
 
     /**
@@ -363,6 +331,58 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
         return $this->getMeta('name');
     }
 
+
+    /**
+     * Get meta data
+     *
+     * @param null|string $name Meta name.
+     *
+     * @return array|string
+     */
+    public function getMeta($name = null){
+        $meta = $this->deserializeMetaData();
+        if($name){
+            return $meta[$name];
+        }
+        return $meta;
+    }
+
+    /**
+     * Return file directory
+     *
+     * @param $file
+     *
+     * @return string
+     */
+    public static function getFileDirectory($file){
+        $file = explode('/', $file);
+        $f = "";
+        $fSize = count($file);
+        for ($i=0; $i<$fSize-1; $i++){
+            $f.=$file[$i];
+            if($i != $fSize-2){
+                $f.="/";
+            }
+        }
+        return $f;
+    }
+
+    /**
+     * Return api fields.
+     */
+    public function fields()
+    {
+        return [
+            'id',
+            'file_name' => 'fileName',
+            'file_type' => 'typeLabel',
+            'file_extension' => 'extension',
+            'size' => function($model) { return $model->getMeta('size'); },
+            'file_url' => 'url',
+            'thumbnails' => 'tumbnailUrls'
+        ];
+    }
+
     /**
      * Return user class.
      *
@@ -371,24 +391,7 @@ class UploadmanagerFiles extends \yii\db\ActiveRecord
     public function getOwner(){
         /** @var ActiveRecord $userClass */
         $userClass = UploadManager::getInstance()->userClass;
-        $user = $userClass::findOne($this->userId);
+        $user = $userClass::findOne($this->user_id);
         return $user;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function fields()
-    {
-        return [
-            'id',
-            'fileName',
-            'name',
-            'description',
-            'extension',
-            'type',
-            'owner',
-            'url'
-        ];
     }
 }
