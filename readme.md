@@ -1,3 +1,13 @@
+### Yii2 Upload manage module.
+
+[![Latest Stable Version](https://poser.pugx.org/aminkt/yii2-upload-manager/v/stable)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![Total Downloads](https://poser.pugx.org/aminkt/yii2-upload-manager/downloads)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![Latest Unstable Version](https://poser.pugx.org/aminkt/yii2-upload-manager/v/unstable)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![License](https://poser.pugx.org/aminkt/yii2-upload-manager/license)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![Monthly Downloads](https://poser.pugx.org/aminkt/yii2-upload-manager/d/monthly)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![Daily Downloads](https://poser.pugx.org/aminkt/yii2-upload-manager/d/daily)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![composer.lock](https://poser.pugx.org/aminkt/yii2-upload-manager/composerlock)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+
 To install this module add `"aminkt/yii2-uploadManager-module" : ">=1.2.0"` in your `composer.json` in your project.
 
 
