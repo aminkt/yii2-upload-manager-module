@@ -3,7 +3,7 @@
 namespace aminkt\uploadManager\components;
 
 use aminkt\normalizer\Normalize;
-use aminkt\uploadManager\models\UploadmanagerFiles;
+use aminkt\uploadManager\interfaces\FileConstantsInterface;
 use yii\base\Widget;
 use yii\bootstrap\Html;
 use yii\bootstrap\Modal;
@@ -44,7 +44,7 @@ class UploadManager extends InputWidget
 
     /**
      * @var null|integer $mediaType Define media type to load an special type or not to load all types.
-     * @see UploadmanagerFiles constants
+     * @see FileConstantsInterface constants
      */
     public $mediaType = null;
 

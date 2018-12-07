@@ -2,12 +2,16 @@
 
 namespace aminkt\uploadManager;
 
+use aminkt\uploadManager\models\File;
+use aminkt\uploadManager\models\FileSearch;
 use aminkt\uploadManager\models\UploadmanagerFiles;
 use yii\helpers\FileHelper;
 use yii\web\NotFoundHttpException;
 
 /**
  * uploadManager module definition class
+ *
+ * @property string uploadBaseUrl
  */
 class UploadManager extends \yii\base\Module
 {
@@ -17,9 +21,8 @@ class UploadManager extends \yii\base\Module
     public $controllerNamespace = 'aminkt\uploadManager\controllers';
 
     public $uploadPath;
-    public $uploadUrl;
-    public $fileIcon;
-    public $noImage;
+    public $uploadUrl = '/upload';
+    public $baseUrl;
     public $acceptedFiles = "image/*,application/pdf,.psd";
     public $sizes = [
         'thumb'=>[150, 150],
@@ -33,6 +36,12 @@ class UploadManager extends \yii\base\Module
     /** @var string Namespace of user model class. */
     public $userClass;
 
+    /** @var string Namespace of file model class. */
+    public $fileClass = File::class;
+
+    /** @var string Namespace of file search model class. */
+    public $fileSearchClass = FileSearch::class;
+
     /**
      * @inheritdoc
      */
@@ -40,7 +49,7 @@ class UploadManager extends \yii\base\Module
     {
         parent::init();
         $this->modules = [
-            'apiV1' => [
+            'v1' => [
                 'class' => 'aminkt\uploadManager\api\v1\Module',
             ],
         ];
@@ -118,5 +127,18 @@ class UploadManager extends \yii\base\Module
             return FileHelper::normalizePath($this->uploadPath.'/'.$this->noImage);
 
         return $this->uploadUrl.'/'.$this->noImage;
+    }
+
+    /**
+     * Return base upload url.
+     *
+     * @return string
+     */
+    public function getUploadBaseUrl(){
+        if(!$this->baseUrl){
+            $this->baseUrl =  \Yii::$app->getUrlManager()->getHostInfo() . \Yii::$app->getUrlManager()->getBaseUrl();
+        }
+
+        return $this->baseUrl . $this->uploadUrl;
     }
 }

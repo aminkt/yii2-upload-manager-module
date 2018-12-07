@@ -1,19 +1,32 @@
-To install this module add `"aminkt/yii2-uploadManager-module" : "@dev"` in your `composer.json` in your project.
+### Yii2 Upload manage module.
+
+[![Latest Stable Version](https://poser.pugx.org/aminkt/yii2-upload-manager/v/stable)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![Total Downloads](https://poser.pugx.org/aminkt/yii2-upload-manager/downloads)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![Latest Unstable Version](https://poser.pugx.org/aminkt/yii2-upload-manager/v/unstable)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![License](https://poser.pugx.org/aminkt/yii2-upload-manager/license)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![Monthly Downloads](https://poser.pugx.org/aminkt/yii2-upload-manager/d/monthly)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![Daily Downloads](https://poser.pugx.org/aminkt/yii2-upload-manager/d/daily)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+[![composer.lock](https://poser.pugx.org/aminkt/yii2-upload-manager/composerlock)](https://packagist.org/packages/aminkt/yii2-upload-manager)
+
+To install this module add `"aminkt/yii2-uploadManager-module" : ">=1.2.0"` in your `composer.json` in your project.
 
 
 Then add flowing lines into your application config:
 ```php
 'uploadManager' => [
-    'class' => aminkt\uploadManager\UploadManager::className(),
+    'class' => aminkt\uploadManager\UploadManager::class,
     'uploadPath'=>Yii::getAlias("@frontendWeb")."/upload",
-    'uploadUrl'=> $params['site']."/upload",
+    'uploadUrl'=> "/upload",
+    'baseUrl' => 'http://localhost:800',
     'acceptedFiles'=>"*",
     'userClass' => 'user/class/namespcae',
-    'fileIcon' => $params['site'] . "/upload/image_not_found.jpg"
+    'fileClass' => 'file/class/namespcae', // Don't set this to use default active record.
+    'fileSearchClass' => 'file/search/class/namespcae', // Don't set this to use default search active record.
 ],
 ```
 
 Then run below code to migrate up your modules:
+> Run migration if you are using defualt module models.
 ```php
 php yii migrate --migratePath="@vendor/aminkt/yii2-uploadManager-module"
 ```
@@ -46,22 +59,22 @@ echo Html::hiddenInput('target', $model->id, ['class'=>'target']);
 Use Upload manager api to upload and fetch files
 -------------
 
-First add flowing rutes to your api url manager:
+First add flowing routes to your api url manager:
 
 
 ```php
 [
     'class' => 'yii\rest\UrlRule',
     'pluralize' => false,
-    'controller' => ['v2/upload' => 'uploadManager/apiV1/upload'],
+    'controller' => ['v2/upload' => 'uploadManager/v1/upload'],
     'extraPatterns' => [
         'GET load/<id:\d+>' => 'load',
     ]
 ],
 ```
 
-Top code means that use uploadManager api version 1 from v2/upload rutes.
-Flowing rutes now available:
+Top code means that use uploadManager api version 1 from v2/upload route.
+Flowing routes now available:
 
 ```text
 GET /v2/upload      // List of all files that user uploaded.
@@ -81,3 +94,20 @@ POST /v2/upload     // Upload a new file.
 
 > Warning:
 >   Cross origin is enabled by default. if you have any problem with this please report it.
+
+
+Advanced configuration
+--------
+
+If you want implement your own models or search model or you wnat use Mongo db database you should flow below instractions.
+
+1. Create your models.
+2. Implement `\aminkt\uploadManager\interfaces\FileInterface`
+3. If you want use default File constant implement `\aminkt\uploadManager\interfaces\FileConstantsInterface` or not
+create your own constants named like defined interface.
+4. Config you module like said in first part and define `fileClass` and `fileSearchClass`
+5. You can use `\aminkt\uploadManager\traits\FileTrait` to implement some regular methods that defined in `FileInterface`
+
+
+> If you wnat use mongodb active record you can just change `fileClass` and `fileSearchClass` discribed in configuration
+part to use mongodb version as `\aminkt\uploadManager\models\mongo\File` and `\aminkt\uploadManager\models\mongo\FileSearch`
