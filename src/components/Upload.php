@@ -41,6 +41,8 @@ class Upload extends Component
 
         $fileModelName = \aminkt\uploadManager\UploadManager::getInstance()->fileClass;
 
+        // Clean last loaded file.
+        UploadedFile::reset();
         /** @var FileInterface $model */
         if($isBase64){
             $model = new $fileModelName();
