@@ -4,7 +4,7 @@
   	"keywords": ["yii", "upload manager", "upload", "module", "manager"],
 	"type": "yii2-extension",
 	"support": {
-		"source": "https://gitlab.com/aminkt/yii2-uploadManager-module"
+		"source": "https://github.com/aminkt/yii2-upload-manager-module"
 	},
 	"authors": [
 		{
