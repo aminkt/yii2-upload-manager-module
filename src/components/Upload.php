@@ -21,6 +21,9 @@ use yii\web\UploadedFile;
  */
 class Upload extends Component
 {
+    /** @var array Keep errors. */
+    public static $errors = [];
+
     /**
      * @param string $input    Input name.
      * @param bool   $isBase64 Upload an base64 encoded file.
@@ -35,6 +38,7 @@ class Upload extends Component
      */
     public static function directUpload($input = 'file', $isBase64 = false)
     {
+        static::$errors = [];
         $module = \aminkt\uploadManager\UploadManager::getInstance();
         $uploadPath = $module->uploadPath;
         $size = $module->sizes;
@@ -71,7 +75,8 @@ class Upload extends Component
                 return $model;
             }else{
                 \Yii::error($model->getErrors());
-                throw new ServerErrorHttpException("File not saved in server.");
+                static::$errors = $model->getFirstErrors();
+                throw new BadRequestHttpException("File not saved in server.");
             }
         } else {
             throw new ForbiddenHttpException("You have not correct access to upload file.");

@@ -172,7 +172,16 @@ class UploadController extends ActiveController
         /** @var UploadmanagerFiles[] $files */
         $files = [];
         foreach ($_FILES as $name => $file) {
-            $files[] = Upload::directUpload($name, $isBase64);
+            try {
+                $files[] = Upload::directUpload($name, $isBase64);
+            } catch (BadRequestHttpException $e) {
+                if (count(Upload::$errors)) {
+                    \Yii::$app->getResponse()->setStatusCode(400);
+                    return Upload::$errors;
+                } else {
+                    throw $e;
+                }
+            }
         }
         if (count($files) > 0) {
             return $files;

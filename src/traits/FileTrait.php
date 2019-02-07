@@ -51,7 +51,7 @@ trait FileTrait
             [['name', 'description', 'file'], 'string', 'max' => 255],
             [['extension'], 'string', 'max' => 20],
             [['file'], 'unique'],
-            [['filesContainer',], 'file', 'skipOnEmpty'=>true],
+            [['filesContainer',], 'file', 'skipOnEmpty'=>false, 'extensions' => implode(',', UploadManager::getInstance()->allowedFiles)],
         ];
     }
 
