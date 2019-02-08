@@ -39,13 +39,6 @@ class UploadManager extends \yii\base\Module
         'normal'=>[500, 500],
     ];
 
-    /**
-     * Max upload size allowed by module and php in megabyte.
-     * @var string $maxUploadFileSize
-     * @since v1.2.0
-     */
-    public $maxUploadFileSize = 2;
-
     /** @var integer Admin user id to get some extra accesses */
     public $adminId;
 
@@ -64,10 +57,6 @@ class UploadManager extends \yii\base\Module
     public function init()
     {
         parent::init();
-        ini_set('upload_max_filesize', $this->maxUploadFileSize.'M');
-        ini_set('post_max_size', $this->maxUploadFileSize.'M');
-        ini_set('max_input_time', 3000);
-        ini_set('max_execution_time', 3000);
         $this->modules = [
             'v1' => [
                 'class' => 'aminkt\uploadManager\api\v1\Module',
