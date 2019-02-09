@@ -1,6 +1,6 @@
 <?php
 
-namespace aminkt\uploadManager\interfaces;
+namespace aminkt\yii2\uploadmanager\interfaces;
 
 /**
  * Interface FIleConstantsInterface

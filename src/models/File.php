@@ -1,11 +1,11 @@
 <?php
 
-namespace aminkt\uploadManager\models;
+namespace aminkt\yii2\uploadmanager\models;
 
-use aminkt\uploadManager\interfaces\FileConstantsInterface;
-use aminkt\uploadManager\interfaces\FileInterface;
-use aminkt\uploadManager\traits\FileTrait;
-use aminkt\uploadManager\UploadManager;
+use aminkt\yii2\uploadmanager\interfaces\FileConstantsInterface;
+use aminkt\yii2\uploadmanager\interfaces\FileInterface;
+use aminkt\yii2\uploadmanager\traits\FileTrait;
+use aminkt\yii2\uploadmanager\UploadManager;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;

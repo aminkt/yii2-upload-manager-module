@@ -1,85 +1,215 @@
 <?php
 
-namespace aminkt\uploadManager\controllers;
+namespace aminkt\yii2\uploadmanager\controllers;
 
-use aminkt\uploadManager\components\Upload;
-use aminkt\uploadManager\models\UploadmanagerFiles;
+use aminkt\yii2\uploadmanager\components\Upload;
+use aminkt\yii2\uploadmanager\interfaces\FileInterface;
+use aminkt\yii2\uploadmanager\models\FileSearch;
+use aminkt\yii2\uploadmanager\models\UploadmanagerFiles;
+use aminkt\yii2\uploadmanager\UploadManager;
+use yii\data\ActiveDataProvider;
+use yii\filters\auth\CompositeAuth;
+use yii\filters\auth\HttpBasicAuth;
+use yii\filters\auth\HttpBearerAuth;
+use yii\filters\auth\QueryParamAuth;
+use yii\rest\ActiveController;
 use yii\web\BadRequestHttpException;
-use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
-/**
- * Api controller for the `uploadManager` module to upload files into server, fetch it or remove.
- *
- * @author Amin Keshavarz <Amin@keshavarz.pro>
- */
-class ApiController extends Controller
-{
-    public $enableCsrfValidation = false;
 
-    /**
-     * Upload file and get id of file in system.
-     *
-     * @author Amin Keshavarz <Amin@keshavarz.pro>
-     */
-    public function actionUpload(){
-        /** @var UploadmanagerFiles[] $files */
-        $files = [];
-        foreach ($_FILES as $name => $file){
-            $files[] = Upload::directUpload($name);
-        }
-        \Yii::warning($files);
-        for ($i=0; $i<count($files); $i++){
-            if($i>0){
-                echo ",";
-            }
-            echo $files[$i]->id;
-        }
+/**
+ * Class ApiController
+ *
+ * Handle upload actions.
+ *
+ * @package aminkt\uploadManager\api\v1\controllers
+ */
+class ApiController extends ActiveController
+{
+    public $serializer = [
+        'class' => 'yii\rest\Serializer',
+        'collectionEnvelope' => 'data',
+    ];
+
+    public function init()
+    {
+        $this->modelClass = UploadManager::getInstance()->fileClass;
+        parent::init();
+    }
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+
+        unset($behaviors['authenticator']);
+
+        // add CORS filter
+        $behaviors['corsFilter'] = [
+            'class' => \yii\filters\Cors::class,
+            'cors' => [
+                // restrict access to
+                'Origin' => ['*'],
+                'methods' => ['GET', 'POST', 'DELETE', 'OPTIONS', 'HEAD']
+            ],
+            'actions' => [
+                '*' => [
+                    'Access-Control-Allow-Credentials' => true,
+                ],
+            ]
+        ];
+
+        // re-add authentication filter
+        $behaviors['authenticator'] = [
+            'class' => CompositeAuth::className(),
+            'authMethods' => [
+                HttpBearerAuth::className(),
+                HttpBasicAuth::className(),
+                QueryParamAuth::className(),
+            ],
+            'except' => ['options'],
+            'optional' => ['view', 'load']
+        ];
+        return $behaviors;
+    }
+
+    public function actions()
+    {
+        $actions = parent::actions();
+
+        // disable the default actions
+        unset($actions['index'], $actions['view'], $actions['delete'], $actions['create'], $actions['update']);
+
+        return $actions;
     }
 
     /**
-     * Delete file from server.
+     * List of all files
      *
-     * @author Amin Keshavarz <Amin@keshavarz.pro>
+     * @return \yii\data\ActiveDataProvider
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function actionDelete(){
-        $fileId = \Yii::$app->getRequest()->getRawBody();
-        if(!$fileId){
-            throw new BadRequestHttpException("File id is not valid");
+    public function actionIndex()
+    {
+        $fileSearchModel = UploadManager::getInstance()->fileSearchClass;
+        if ($fileSearchModel) {
+            $searchModel = new $fileSearchModel();
+            $dataProvider = $searchModel->search(\Yii::$app->request->queryParams);
+        } else {
+            $fileModel = UploadManager::getInstance()->fileClass;
+            $dataProvider = new ActiveDataProvider([
+                'query' => $fileModel::find()
+            ]);
         }
 
-        $file = UploadmanagerFiles::findOne($fileId);
-        if(!$file){
-            return new NotFoundHttpException("File not found in db");
-        }
+        return $dataProvider;
+    }
 
-        if(!$file->delete()){
-            throw new ServerErrorHttpException("Can not delete file `{$file->id}``");
-        }
 
-        // no content to return
-        \Yii::$app->getResponse()->setStatusCode(204);
+    /**
+     * View a single file.
+     *
+     * @param integer $id Business id.
+     *
+     * @return Business Business model.
+     *
+     * @throws NotFoundHttpException
+     * @throws ForbiddenHttpException
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
+    public function actionView($id)
+    {
+        $modelCalssName = UploadManager::getInstance()->fileClass;
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
+            throw new NotFoundHttpException("File not found");
+        }
+        return $file;
+    }
+
+    /**
+     * Delete a model from database. and remove it from server.
+     *
+     * @param integer $id Business Id.
+     *
+     * @return void
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     *
+     * @throws NotFoundHttpException
+     */
+    public function actionDelete($id)
+    {
+        $modelCalssName = UploadManager::getInstance()->fileClass;
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
+            throw new NotFoundHttpException("File not found");
+        }
+        if ($file->delete()) {
+            \Yii::$app->getResponse()->setStatusCode(204);
+
+        } else {
+            throw new ServerErrorHttpException("File did not delete.");
+        }
+    }
+
+
+    /**
+     * Upload new file.
+     *
+     * @param bool $isBase64
+     *
+     * @return UploadmanagerFiles[]|array
+     * @throws BadRequestHttpException
+     * @throws \yii\web\ForbiddenHttpException
+     * @throws \yii\web\ServerErrorHttpException
+     * @author Saghar Mojdehi <saghar.mojdehi@gmail.com>
+     */
+    public function actionCreate($isBase64 = false)
+    {
+        /** @var UploadmanagerFiles[] $files */
+        $files = [];
+        foreach ($_FILES as $name => $file) {
+            try {
+                $files[] = Upload::directUpload($name, $isBase64);
+            } catch (BadRequestHttpException $e) {
+                if (count(Upload::$errors)) {
+                    \Yii::$app->getResponse()->setStatusCode(400);
+                    return Upload::$errors;
+                } else {
+                    throw $e;
+                }
+            }
+        }
+        if (count($files) > 0) {
+            return $files;
+        }
+        throw new BadRequestHttpException("There is no file to upload.");
     }
 
     /**
      * Load file from server by id.
      *
-     * @param integer   $id
+     * @param integer $id
      *
      * @return bool|string|NotFoundHttpException
      * @throws NotFoundHttpException
      *
      * @author Amin Keshavarz <Amin@keshavarz.pro>
      */
-    public function actionLoad($id){
-        $file = UploadmanagerFiles::findOne($id);
-        if(!$file){
-            return new NotFoundHttpException("File not found in db");
+    public function actionLoad($id)
+    {
+        $modelCalssName = UploadManager::getInstance()->fileClass;
+        /** @var FileInterface $file */
+        $file = $modelCalssName::findOne($id);
+        if (!$file) {
+            throw new NotFoundHttpException("File not found in db.");
         }
 
-        $path = $file->getPath(null , true);
-        if(!$path){
+        $path = $file->getPath(null, true);
+        if (!$path) {
             throw new NotFoundHttpException("File not found");
         }
 
@@ -90,39 +220,11 @@ class ApiController extends Controller
         // Return file
         // Allow to read Content Disposition (so we can read the file name on the client side)
         header('Access-Control-Expose-Headers: Content-Disposition');
-        header('Content-Type: ' . $file->tags['type']);
-        header('Content-Length: ' . $file->tags['size']);
+        header('Content-Type: ' . $file->getMeta('type'));
+        header('Content-Length: ' . $file->getMeta('size'));
         header('Content-Disposition: inline; filename="' . $file['name'] . '"');
 
         echo $content;
         exit();
-    }
-
-    /**
-     * Fetch file from another server by url and download it into server.
-     *
-     * @author Amin Keshavarz <Amin@keshavarz.pro>
-     */
-    public function actionFetch(){
-        throw new BadRequestHttpException("Not implemented yet");
-    }
-
-    /**
-     * FilePond uses the restore end point to restore temporary server files. This might be useful in a situation where the user closes the browser window but has not finished completing the form. Temporary files can be set with the files property.
-     *
-     * Step one and two now look like this.
-     *
-     * * client requests restore of file with id 12345 using a GET request
-     * * server returns a file object with header `Content-Disposition: inline; filename=my-file.jpg`
-     *
-     * @param integer $id
-     *
-     * @return bool|string|NotFoundHttpException
-     * @throws NotFoundHttpException
-     *
-     * @author Amin Keshavarz <Amin@keshavarz.pro>
-     */
-    public function actionRestore($id){
-        return $this->actionLoad($id);
     }
 }

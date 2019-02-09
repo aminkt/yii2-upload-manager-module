@@ -1,7 +1,7 @@
 <?php
-namespace aminkt\uploadManager\models;
+namespace aminkt\yii2\uploadmanager\models;
 
-use aminkt\uploadManager\UploadManager;
+use aminkt\yii2\uploadmanager\UploadManager;
 use yii\data\ActiveDataProvider;
 
 class FileSearch extends File

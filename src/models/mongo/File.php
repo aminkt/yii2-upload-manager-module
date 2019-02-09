@@ -1,11 +1,11 @@
 <?php
 
-namespace aminkt\uploadManager\models\mongo;
+namespace aminkt\yii2\uploadmanager\models\mongo;
 
-use aminkt\uploadManager\interfaces\FileConstantsInterface;
-use aminkt\uploadManager\interfaces\FileInterface;
-use aminkt\uploadManager\traits\FileTrait;
-use aminkt\uploadManager\UploadManager;
+use aminkt\yii2\uploadmanager\interfaces\FileConstantsInterface;
+use aminkt\yii2\uploadmanager\interfaces\FileInterface;
+use aminkt\yii2\uploadmanager\traits\FileTrait;
+use aminkt\yii2\uploadmanager\UploadManager;
 use common\components\YiiJDF;
 use MongoDB\BSON\ObjectId;
 use Yii;

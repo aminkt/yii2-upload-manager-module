@@ -14,14 +14,13 @@
 	],
 	"require": {
 		"yiisoft/yii2": "*",
-        "perminder-klair/yii2-dropzone": "*",
         "yiisoft/yii2-imagine": "~2.0.0",
-		"faravaghi/yii2-jalali-datepicker": "*"
+		"khanzadimahdi/uploadmanager": "^1.0"
 	},
 	"autoload": {
-		"psr-4": {"aminkt\\uploadManager\\": "src"}
+		"psr-4": {"aminkt\\yii2\\uploadmanager\\": "src"}
 	},
 	"autoload-dev": {
-		"psr-4": {"aminkt\\uploadManager\\test": "test"}
+		"psr-4": {"aminkt\\yii2\\uploadManager\\test": "test"}
 	}
 }

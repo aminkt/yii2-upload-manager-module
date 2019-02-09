@@ -1,6 +1,6 @@
 <?php
 
-namespace aminkt\uploadManager\classes;
+namespace aminkt\yii2\uploadmanager\classes;
 
 use yii\helpers\BaseFileHelper;
 

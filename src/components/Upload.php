@@ -1,9 +1,9 @@
 <?php
 
-namespace aminkt\uploadManager\components;
+namespace aminkt\yii2\uploadmanager\components;
 
-use aminkt\uploadManager\classes\UploadedBase64File;
-use aminkt\uploadManager\interfaces\FileInterface;
+use aminkt\yii2\uploadmanager\classes\UploadedBase64File;
+use aminkt\yii2\uploadmanager\interfaces\FileInterface;
 use yii\base\Component;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -39,11 +39,11 @@ class Upload extends Component
     public static function directUpload($input = 'file', $isBase64 = false)
     {
         static::$errors = [];
-        $module = \aminkt\uploadManager\UploadManager::getInstance();
+        $module = \aminkt\yii2\uploadmanager\UploadManager::getInstance();
         $uploadPath = $module->uploadPath;
         $size = $module->sizes;
 
-        $fileModelName = \aminkt\uploadManager\UploadManager::getInstance()->fileClass;
+        $fileModelName = \aminkt\yii2\uploadmanager\UploadManager::getInstance()->fileClass;
 
         // Clean last loaded file.
         UploadedFile::reset();

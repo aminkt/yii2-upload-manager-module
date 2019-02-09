@@ -1,8 +1,8 @@
 <?php
 
-namespace aminkt\uploadManager\traits;
+namespace aminkt\yii2\uploadmanager\traits;
 
-use aminkt\uploadManager\UploadManager;
+use aminkt\yii2\uploadmanager\UploadManager;
 use yii\helpers\FileHelper;
 use yii\helpers\Json;
 use yii\imagine\Image;

@@ -1,10 +1,10 @@
 <?php
 
-namespace aminkt\uploadManager;
+namespace aminkt\yii2\uploadmanager;
 
-use aminkt\uploadManager\models\File;
-use aminkt\uploadManager\models\FileSearch;
-use aminkt\uploadManager\models\UploadmanagerFiles;
+use aminkt\yii2\uploadmanager\models\File;
+use aminkt\yii2\uploadmanager\models\FileSearch;
+use aminkt\yii2\uploadmanager\models\UploadmanagerFiles;
 use yii\helpers\FileHelper;
 use yii\web\NotFoundHttpException;
 
@@ -57,11 +57,6 @@ class UploadManager extends \yii\base\Module
     public function init()
     {
         parent::init();
-        $this->modules = [
-            'v1' => [
-                'class' => 'aminkt\uploadManager\api\v1\Module',
-            ],
-        ];
     }
 
     /**

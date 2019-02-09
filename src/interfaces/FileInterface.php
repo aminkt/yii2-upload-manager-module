@@ -1,6 +1,7 @@
 <?php
 
-namespace aminkt\uploadManager\interfaces;
+namespace aminkt\yii2\uploadmanager\interfaces;
+
 use yii\web\UploadedFile;
 
 /**

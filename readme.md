@@ -14,7 +14,7 @@ To install this module add `"aminkt/yii2-uploadManager-module" : ">=1.2.0"` in y
 Then add flowing lines into your application config:
 ```php
 'uploadManager' => [
-    'class' => aminkt\uploadManager\UploadManager::class,
+    'class' => aminkt\yii2\uploadmanager\UploadManager::class,
     'uploadPath'=>Yii::getAlias("@frontendWeb")."/upload",
     'uploadUrl'=> "/upload",
     'baseUrl' => 'http://localhost:800',
@@ -39,8 +39,10 @@ How use upload manager widget?
 
 Add flowing lines into your view file to load upload manager widget:
 
+> This part is deprecated.
+
 ```php
-<?php echo \aminkt\uploadManager\components\UploadManager::widget([
+<?php echo \aminkt\yii2\uploadmanager\components\UploadManager::widget([
     'id'=>'upload-user-pic-'.$model->id,
     'model'=>$model,
     'attribute'=>'picture',
@@ -66,7 +68,7 @@ First add flowing routes to your api url manager:
 [
     'class' => 'yii\rest\UrlRule',
     'pluralize' => false,
-    'controller' => ['v2/upload' => 'uploadManager/v1/upload'],
+    'controller' => ['v2/upload' => 'uploadManager/api'],
     'extraPatterns' => [
         'GET load/<id:\d+>' => 'load',
     ]
@@ -102,12 +104,12 @@ Advanced configuration
 If you want implement your own models or search model or you wnat use Mongo db database you should flow below instractions.
 
 1. Create your models.
-2. Implement `\aminkt\uploadManager\interfaces\FileInterface`
-3. If you want use default File constant implement `\aminkt\uploadManager\interfaces\FileConstantsInterface` or not
+2. Implement `\aminkt\yii2\uploadmanager\interfaces\FileInterface`
+3. If you want use default File constant implement `\aminkt\yii2\uploadmanager\interfaces\FileConstantsInterface` or not
 create your own constants named like defined interface.
 4. Config you module like said in first part and define `fileClass` and `fileSearchClass`
-5. You can use `\aminkt\uploadManager\traits\FileTrait` to implement some regular methods that defined in `FileInterface`
+5. You can use `\aminkt\yii2\uploadmanager\traits\FileTrait` to implement some regular methods that defined in `FileInterface`
 
 
 > If you wnat use mongodb active record you can just change `fileClass` and `fileSearchClass` discribed in configuration
-part to use mongodb version as `\aminkt\uploadManager\models\mongo\File` and `\aminkt\uploadManager\models\mongo\FileSearch`
+part to use mongodb version as `\aminkt\yii2\uploadmanager\models\mongo\File` and `\aminkt\yii2\uploadmanager\models\mongo\FileSearch`
