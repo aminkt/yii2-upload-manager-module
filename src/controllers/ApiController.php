@@ -37,41 +37,6 @@ class ApiController extends ActiveController
         parent::init();
     }
 
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-
-        unset($behaviors['authenticator']);
-
-        // add CORS filter
-        $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::class,
-            'cors' => [
-                // restrict access to
-                'Origin' => ['*'],
-                'methods' => ['GET', 'POST', 'DELETE', 'OPTIONS', 'HEAD']
-            ],
-            'actions' => [
-                '*' => [
-                    'Access-Control-Allow-Credentials' => true,
-                ],
-            ]
-        ];
-
-        // re-add authentication filter
-        $behaviors['authenticator'] = [
-            'class' => CompositeAuth::className(),
-            'authMethods' => [
-                HttpBearerAuth::className(),
-                HttpBasicAuth::className(),
-                QueryParamAuth::className(),
-            ],
-            'except' => ['options'],
-            'optional' => ['view', 'load']
-        ];
-        return $behaviors;
-    }
-
     public function actions()
     {
         $actions = parent::actions();
