@@ -4,7 +4,6 @@ namespace aminkt\yii2\uploadmanager\controllers;
 
 use aminkt\yii2\uploadmanager\components\Upload;
 use aminkt\yii2\uploadmanager\interfaces\FileInterface;
-use aminkt\yii2\uploadmanager\models\FileSearch;
 use aminkt\yii2\uploadmanager\models\UploadmanagerFiles;
 use aminkt\yii2\uploadmanager\UploadManager;
 use yii\data\ActiveDataProvider;
