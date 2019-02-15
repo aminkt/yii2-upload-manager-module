@@ -6,6 +6,7 @@ class m160915_111512_init extends Migration
 {
     public function safeUp()
     {
+        $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
 //        $this->createTable("{{%uploadManager_albums}}", [
 //            'id'=>$this->primaryKey(),
 //            'name'=>$this->string()->notNull(),
@@ -29,7 +30,7 @@ class m160915_111512_init extends Migration
             'file_type'=>$this->smallInteger(2),
             'update_at'=>$this->dateTime(),
             'create_at'=>$this->dateTime()
-        ]);
+        ], $tableOptions);
 
 
 //        $this->addForeignKey('uploadManager_file_album_fk', "{{%uploadManager_files}}", 'albumId', "{{%uploadManager_albums}}", 'id', 'CASCADE', 'CASCADE');

@@ -39,7 +39,7 @@ class UploadManager extends \yii\base\Module
         'normal'=>[500, 500],
     ];
 
-    /** @var integer Admin user id to get some extra accesses */
+    /** @var array Admin user id to get some extra accesses */
     public $adminId;
 
     /** @var string Namespace of user model class. */

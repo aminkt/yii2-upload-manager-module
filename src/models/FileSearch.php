@@ -28,7 +28,7 @@ class FileSearch extends File
      * @return ActiveDataProvider
      */
     public function search($params){
-        $query = UploadmanagerFiles::find();
+        $query = File::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
