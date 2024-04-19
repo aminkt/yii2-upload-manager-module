@@ -19,12 +19,12 @@ class UploadManager extends \yii\base\Module
      * @inheritdoc
      */
     public $controllerNamespace = 'aminkt\uploadManager\controllers';
-
-    public $uploadPath;
-    public $uploadUrl = '/upload';
-    public $baseUrl;
-    public $acceptedFiles = "image/*,application/pdf,.psd";
-    public $sizes = [
+    public string $uploadPath;
+    public string $fileIcon;
+    public string $uploadUrl = '/upload';
+    public string $baseUrl;
+    public string $acceptedFiles = "image/*,application/pdf,.psd";
+    public array $sizes = [
         'thumb'=>[150, 150],
         'small'=>[250, 250],
         'normal'=>[500, 500],
