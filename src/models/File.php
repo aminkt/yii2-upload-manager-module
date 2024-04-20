@@ -36,7 +36,8 @@ class File extends \yii\db\ActiveRecord implements FileInterface, FileConstantsI
     use FileTrait {
         rules as traitRuels;
         fields as traitFields;
-    };
+    }
+
     /**
      * @inheritdoc
      */
