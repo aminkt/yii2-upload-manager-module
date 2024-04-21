@@ -43,7 +43,8 @@ class File extends \yii\db\ActiveRecord implements FileInterface, FileConstantsI
      */
     public static function tableName()
     {
-        return "{{%files}}";
+        $moduleName = UploadManager::getInstance()->id;
+        return "{{%{$moduleName}_files}}";
     }
 
     public function behaviors()

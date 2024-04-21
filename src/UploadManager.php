@@ -76,7 +76,7 @@ class UploadManager extends \yii\base\Module
      * @throws NotFoundHttpException
      */
     public function image($id, $size = null, $path=false){
-        $image = UploadmanagerFiles::findOne($id);
+        $image = File::findOne($id);
         if(!$image or $image->fileType != $image::FILE_TYPE_IMAGE)
             return $this->fileIcon;
 
