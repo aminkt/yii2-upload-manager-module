@@ -7,6 +7,7 @@ use aminkt\uploadManager\models\FileSearch;
 use aminkt\uploadManager\models\UploadmanagerFiles;
 use yii\helpers\FileHelper;
 use yii\web\NotFoundHttpException;
+use function common\components\dd;
 
 /**
  * uploadManager module definition class
@@ -21,13 +22,14 @@ class UploadManager extends \yii\base\Module
     public $controllerNamespace = 'aminkt\uploadManager\controllers';
     public string $uploadPath;
     public string $fileIcon;
+    public string $noImage;
     public string $uploadUrl = '/upload';
-    public string $baseUrl;
+    public ?string $baseUrl = null;
     public string $acceptedFiles = "image/*,application/pdf,.psd";
     public array $sizes = [
-        'thumb'=>[150, 150],
-        'small'=>[250, 250],
-        'normal'=>[500, 500],
+        'thumb' => [150, 150],
+        'small' => [250, 250],
+        'normal' => [500, 500],
     ];
 
     /** @var integer Admin user id to get some extra accesses */
@@ -75,25 +77,26 @@ class UploadManager extends \yii\base\Module
      * @return string
      * @throws NotFoundHttpException
      */
-    public function image($id, $size = null, $path=false){
+    public function image($id, $size = null, $path = false)
+    {
         $image = File::findOne($id);
-        if(!$image or $image->fileType != $image::FILE_TYPE_IMAGE)
-            return $this->fileIcon;
+        if (!$image or $image->fileType != $image::FILE_TYPE_IMAGE)
+            return $this->getUploadBaseUrl() . '/' . $this->fileIcon;
 
 
-         if($size)
-            $address = $image::getFileDirectory($image->file).'/'.$size.'_'.$image->name;
+        if ($size)
+            $address = $image::getFileDirectory($image->file) . '/' . $size . '_' . $image->name;
         else
-            $address = $image::getFileDirectory($image->file).'/'.$image->name;
+            $address = $image::getFileDirectory($image->file) . '/' . $image->name;
 
-        if($path){
-            $p = FileHelper::normalizePath($this->uploadPath.'/'.$address);
-            if(file_exists($p))
-                return FileHelper::normalizePath($this->uploadPath.'/'.$address);
-            else
-                return FileHelper::normalizePath($this->uploadPath.'/'.$this->noImage);
+        $p = FileHelper::normalizePath($this->uploadPath . '/' . $address);
+        if (!file_exists($p)) {
+            return $this->getNoImage($path);
+        } else if ($path) {
+            return FileHelper::normalizePath($this->uploadPath . '/' . $address);
         }
-        return $this->uploadUrl.'/'.$address;
+
+        return $this->getUploadBaseUrl() . '/' . $address;
     }
 
 
@@ -122,11 +125,12 @@ class UploadManager extends \yii\base\Module
      * @param bool $path
      * @return string
      */
-    public function getNoImage($path=false){
-        if($path)
-            return FileHelper::normalizePath($this->uploadPath.'/'.$this->noImage);
+    public function getNoImage($path = false)
+    {
+        if ($path)
+            return FileHelper::normalizePath($this->uploadPath . '/' . $this->noImage);
 
-        return $this->uploadUrl.'/'.$this->noImage;
+        return $this->getUploadBaseUrl() . '/' . $this->noImage;
     }
 
     /**
@@ -134,9 +138,10 @@ class UploadManager extends \yii\base\Module
      *
      * @return string
      */
-    public function getUploadBaseUrl(){
-        if(!$this->baseUrl){
-            $this->baseUrl =  \Yii::$app->getUrlManager()->getHostInfo() . \Yii::$app->getUrlManager()->getBaseUrl();
+    public function getUploadBaseUrl()
+    {
+        if (!$this->baseUrl) {
+            $this->baseUrl = \Yii::$app->getUrlManager()->getHostInfo() . \Yii::$app->getUrlManager()->getBaseUrl();
         }
 
         return $this->baseUrl . $this->uploadUrl;
