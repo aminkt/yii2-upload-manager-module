@@ -105,7 +105,7 @@ class UploadManager extends \yii\base\Module
      *
      * @param integer $id File id.
      *
-     * @return null|UploadmanagerFiles
+     * @return null|File
      *
      * @throws \yii\web\NotFoundHttpException
      *
@@ -113,7 +113,7 @@ class UploadManager extends \yii\base\Module
      */
     public function getFile($id)
     {
-        $file = UploadmanagerFiles::findOne($id);
+        $file = File::findOne($id);
         if (!$file)
             throw new NotFoundHttpException("File not found");
 
