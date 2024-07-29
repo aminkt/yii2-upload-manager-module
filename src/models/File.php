@@ -29,7 +29,7 @@ use yii\db\Expression;
  *
  *
  * @property array $typeLabel
- * @property string $fileName
+ * @property string $file_name
  */
 class File extends \yii\db\ActiveRecord implements FileInterface, FileConstantsInterface
 {

@@ -3,7 +3,7 @@ use aminkt\uploadManager\components\Assets;
 use \aminkt\uploadManager\UploadManager;
 
 /** @var $this \yii\web\View */
-/** @var $model aminkt\uploadManager\models\UploadmanagerFiles */
+/** @var $model \aminkt\uploadManager\models\File */
 /** @var $dataProvider \yii\data\ActiveDataProvider */
 /** @var $multiple boolean */
 /** @var $counter integer|null */
@@ -24,7 +24,7 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
         'class'=>'form-control',
         'style'=>'width:200px; display:inline-block; margin:5px;'
     ]) ?>
-    <?= \yii\helpers\Html::activeDropDownList($model, 'fileType', [
+    <?= \yii\helpers\Html::activeDropDownList($model, 'file_type', [
         null => 'همه',
         $model::FILE_TYPE_IMAGE => 'تصویر',
         $model::FILE_TYPE_VIDEO => 'ویدیو',
@@ -39,7 +39,7 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
     ]) ?>
     <?= \faravaghi\jalaliDatePicker\jalaliDatePicker::widget([
         'model' => $model,
-        'attribute' => 'createTime',
+        'attribute' => 'create_at',
         'options' => array(
             'format' => 'yyyy-mm-dd',
             'autocomplete' => 'off',
@@ -67,9 +67,9 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
                 <option value=""></option>
                 <?php foreach ($models as $model):
                     $fileUrl = $model->getUrl();
-                    if ($model->fileType == \aminkt\uploadManager\models\UploadmanagerFiles::FILE_TYPE_IMAGE) {
+                    if ($model->file_type == \aminkt\uploadManager\models\File::FILE_TYPE_IMAGE) {
                         $url = Yii::$app->getModule('uploadManager')->image($model->id, 'thumb');
-                    } elseif($model->fileType == \aminkt\uploadManager\models\UploadmanagerFiles::FILE_TYPE_VIDEO) {
+                    } elseif($model->file_type == \aminkt\uploadManager\models\File::FILE_TYPE_VIDEO) {
                         $url = $videoFileBase64Img;
                     } else {
                         $url = \Yii::$app->getModule('uploadManager')->fileIcon;
@@ -79,7 +79,7 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
                     <option data-img-src="<?= $url ?>"
                             data-url="<?= $fileUrl ?>"
                             data-img-alt="<?= $model->fileName ?>"
-                            <?php if ($model->fileType != $model::FILE_TYPE_IMAGE ) : ?>
+                            <?php if ($model->file_type != $model::FILE_TYPE_IMAGE ) : ?>
                                 data-img-label="<div class='caption'><?= $model->fileName ?></div>"
                             <?php endif; ?>
                             value="<?= $model->id ?>" <?= $select?'selected="true"':'' ?>>

@@ -60,9 +60,9 @@ class UploadManager extends InputWidget
         $this->_module = \Yii::$app->getModule('uploadManager');
         if (count($this->btnOptions) == 0) {
             $this->btnOptions = [
-                'class' => 'btn btn-primary tooltiped ' . $this->id . '-modal-btn',
+                'class' => 'btn btn-primary tooltiped ' . $this->id . '-modal-btn uploadmanager-btn',
                 'type' => 'button',
-                'style'=>'border-radius:0;',
+                'style' => 'border-radius:0;',
                 'data' => [
                     'target' => '#' . $this->id . '-modal',
                     'toggle' => 'modal',
@@ -81,8 +81,7 @@ class UploadManager extends InputWidget
             $this->value = $this->model->{$this->attribute};
         }
 
-        if ($this->value)
-            $this->initialShowImages();
+        $this->initialShowImages();
 
         $this->_url = Url::to(['/uploadManager/default/ajax', 'multiple' => $this->multiple, 'counter' => $this->id], true);
     }
@@ -92,22 +91,21 @@ class UploadManager extends InputWidget
      */
     public function initialShowImages()
     {
-        if ($this->value and $container = $this->showImageContainer) {
-            $ids = explode(',', $this->value);
+        if ($container = $this->showImageContainer) {
             $pictures = [];
-            if (count($ids) == 0) {
-                return;
-            } else {
+            if ($this->value) {
+                $ids = explode(',', $this->value);
                 foreach ($ids as $id) {
                     try {
                         $file = $this->_module->getFile($id);
                         $pictures[] = ['id' => $id, 'url' => $file->getUrl($this->sizeOfImageInImageContainer), 'extension' => $file->extension];
                     } catch (NotFoundHttpException $e) {
-                        $noImage = \Yii::$app->getModule('uploadManager')->noImage;
-                        $pictures[] = ['id' => $id, 'url' => $noImage, 'extension' => 'jpg'];
-                        \Yii::error("Record of file by id={$id} not found", self::className());
+                        $pictures[] = ['id' => $id, 'url' => $this->_module->getNoImage(), 'extension' => 'jpg'];
+                        \Yii::error("Record of file by id={$id} not found", UploadManager::class);
                     }
                 }
+            } else {
+                $pictures[] = ['id' => null, 'url' => $this->_module->getNoImage(), 'extension' => 'jpg'];
             }
 
             $this->generateInitialShowImagesJs($pictures, $container);
@@ -167,11 +165,11 @@ JS;
 CSS;
         $this->view->registerCss($css);
         echo Html::a($this->btnTxt, '#', $this->btnOptions);
-        echo Html::button('x', [
-            'class' => 'btn btn-danger',
-            'id' => 'remove-from-'.$this->getId(),
-            'style' => 'display:inline;border-radius:border-radius: 0;'
-        ]);
+        if ($this->value)
+            echo Html::button('<i class="fa fa-trash"></i>', [
+                'class' => 'btn btn-danger uploadmanager-btn',
+                'id' => 'remove-from-' . $this->getId(),
+            ]);
         if ($this->helpBlockEnable)
             echo '<div id="' . $this->id . '-help-block"></div>';
         $modal = Modal::begin([
@@ -320,7 +318,7 @@ JS;
   jQuery("#$this->id-modal").modal('hide');
 });
 JS;
-        $showImageContainer = $this->showImageContainer ? $this->showImageContainer : '#not-setted-image-container-'.$this->getId();
+        $showImageContainer = $this->showImageContainer ? $this->showImageContainer : '#not-setted-image-container-' . $this->getId();
         $js .= <<<JS
 $(document).on('click', '#remove-from-$this->id', function() {
   jQuery('#$this->id').val('').trigger("change");

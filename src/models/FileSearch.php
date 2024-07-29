@@ -6,7 +6,7 @@ use yii\data\ActiveDataProvider;
 
 class FileSearch extends File
 {
-    public $fileName;
+    public $file_name;
 
     /**
      * @inheritdoc
@@ -49,7 +49,7 @@ class FileSearch extends File
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'file_type' => $this->fileType,
+            'file_type' => $this->file_type,
             'status' => $this->status,
         ]);
 
@@ -68,8 +68,8 @@ class FileSearch extends File
             ->andFilterWhere(['like', 'description', $this->description])
             ->andFilterWhere(['like', 'file', $this->file]);
 
-        if($this->fileName){
-            $query->andFilterWhere(['like', 'meta_data', '"name":"'.$this->fileName]);
+        if($this->file_name){
+            $query->andFilterWhere(['like', 'meta_data', '"name":"'.$this->file_name]);
 
         }
 

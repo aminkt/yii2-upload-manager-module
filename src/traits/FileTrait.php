@@ -51,7 +51,7 @@ trait FileTrait
             [['name', 'description', 'file'], 'string', 'max' => 255],
             [['extension'], 'string', 'max' => 20],
             [['file'], 'unique'],
-            [['filesContainer',], 'file', 'skipOnEmpty'=>true],
+            [['filesContainer',], 'file', 'skipOnEmpty' => true],
         ];
     }
 
@@ -61,14 +61,15 @@ trait FileTrait
      * @param String $fileName
      * @return null|string
      */
-    public static function getUploadedFileName($file, $fileName = null){
-        if($file){
+    public static function getUploadedFileName($file, $fileName = null)
+    {
+        if ($file) {
             $unique = md5($file->baseName);
-            $unique = substr($unique, 1,5);
-            if(!$fileName){
+            $unique = substr($unique, 1, 5);
+            if (!$fileName) {
                 $fileName = md5($file->baseName);
             }
-            return time()."_".$fileName."_".$unique.'.'.$file->extension;
+            return time() . "_" . $fileName . "_" . $unique . '.' . $file->extension;
         }
         return null;
     }
@@ -78,10 +79,11 @@ trait FileTrait
      * @param string $dir
      * @return string|boolean
      */
-    public static function getUploadedFileDir($dir){
-        $path = $dir.DIRECTORY_SEPARATOR.date('Y', time()).DIRECTORY_SEPARATOR.date('n', time());
-        if(FileHelper::createDirectory($path)){
-            return date('Y', time()).'/'.date('n', time());
+    public static function getUploadedFileDir($dir)
+    {
+        $path = $dir . DIRECTORY_SEPARATOR . date('Y', time()) . DIRECTORY_SEPARATOR . date('n', time());
+        if (FileHelper::createDirectory($path)) {
+            return date('Y', time()) . '/' . date('n', time());
         }
         return false;
     }
@@ -91,9 +93,10 @@ trait FileTrait
      * @param UploadedFile $file
      * @return int
      */
-    public static function getFileTypeCode($file){
+    public static function getFileTypeCode($file)
+    {
         $type = $file->type;
-        switch (1){
+        switch (1) {
             case preg_match("/image/", $type):
                 return static::FILE_TYPE_IMAGE;
                 break;
@@ -123,7 +126,8 @@ trait FileTrait
      *
      * @return mixed
      */
-    protected function serializeMetaData(){
+    protected function serializeMetaData()
+    {
         return Json::encode([
             'name' => $this->filesContainer->name,
             'type' => $this->filesContainer->type,
@@ -137,7 +141,8 @@ trait FileTrait
      * If you are using mongo db change thi method to just return an array.
      * @return mixed
      */
-    protected function deserializeMetaData() {
+    protected function deserializeMetaData()
+    {
         return Json::decode($this->meta_data, true);
     }
 
@@ -148,38 +153,39 @@ trait FileTrait
      * @param array $sizes
      * @return bool|string
      */
-    public function upload($dir, $sizes = []){
-        if($this->filesContainer){
+    public function upload($dir, $sizes = [])
+    {
+        if ($this->filesContainer) {
             $this->name = static::getUploadedFileName($this->filesContainer);
             $this->extension = $this->filesContainer->extension;
             $this->meta_data = $this->serializeMetaData();
             $this->status = static::STATUS_ENABLE;
             $this->file_type = static::getFileTypeCode($this->filesContainer);
 
-            if($directory = static::getUploadedFileDir($dir)){
-                $this->file = $directory.'/'.$this->name;
-                if ($this->validate()){
+            if ($directory = static::getUploadedFileDir($dir)) {
+                $this->file = $directory . '/' . $this->name;
+                if ($this->validate()) {
                     $file = false;
 
                     if (YII_ENV_TEST) {
-                        if(copy($this->filesContainer->tempName, FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file))){
+                        if (copy($this->filesContainer->tempName, FileHelper::normalizePath($dir . DIRECTORY_SEPARATOR . $this->file))) {
                             $file = $this->file;
                         }
                     } else {
-                        if($this->filesContainer->saveAs(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file))){
+                        if ($this->filesContainer->saveAs(FileHelper::normalizePath($dir . DIRECTORY_SEPARATOR . $this->file))) {
                             $file = $this->file;
                         }
                     }
 
 
-                    if($this->file_type == self::FILE_TYPE_IMAGE and $file) {
-                        foreach ($sizes as $key=>$size){
-                            $Imagin = Image::thumbnail(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$this->file), $size[0], $size[1])
-                                ->save(FileHelper::normalizePath($dir.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.$key.'_'.$this->name));
+                    if ($this->file_type == self::FILE_TYPE_IMAGE and $file) {
+                        foreach ($sizes as $key => $size) {
+                            $Imagin = Image::thumbnail(FileHelper::normalizePath($dir . DIRECTORY_SEPARATOR . $this->file), $size[0], $size[1])
+                                ->save(FileHelper::normalizePath($dir . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . $key . '_' . $this->name));
                         }
                     }
                     $this->filesContainer = null;
-                    return  $file;
+                    return $file;
                 }
                 return false;
             }
@@ -191,8 +197,9 @@ trait FileTrait
     /**
      * @inheritdoc
      */
-    public function getTypeLabel(){
-        switch ($this->file_type){
+    public function getTypeLabel()
+    {
+        switch ($this->file_type) {
             case static::FILE_TYPE_IMAGE:
                 return 'image';
             case static::FILE_TYPE_VIDEO:
@@ -239,7 +246,7 @@ trait FileTrait
      * Return file path.
      *
      * @param null $size
-     * @param bool  $returnNullIfNotExists
+     * @param bool $returnNullIfNotExists
      *
      * @return string
      *
@@ -266,21 +273,22 @@ trait FileTrait
      *
      * @return void
      */
-    public function deleteFiles(){
+    public function deleteFiles()
+    {
         $sizes = UploadManager::getInstance()->sizes;
-        foreach ($sizes as $name=>$size){
+        foreach ($sizes as $name => $size) {
             $path = $this->getPath($name, true);
-            if($path){
+            if ($path) {
                 unlink($path);
-            }else{
+            } else {
                 Yii::warning("Can not delete file {$path}");
             }
         }
 
         $path = $this->getPath(null, true);
-        if($path){
+        if ($path) {
             unlink($path);
-        }else{
+        } else {
             Yii::warning("Can not delete file {$path}");
         }
     }
@@ -288,7 +296,8 @@ trait FileTrait
     /**
      * @inheritdoc
      */
-    public function setFilesContainer($file){
+    public function setFilesContainer($file)
+    {
         $this->filesContainer = $file;
     }
 
@@ -297,7 +306,8 @@ trait FileTrait
      *
      * @param $userId
      */
-    public function setUserId($userId){
+    public function setUserId($userId)
+    {
         $this->user_id = $userId;
     }
 
@@ -306,13 +316,14 @@ trait FileTrait
      *
      * @return array
      */
-    public function getTumbnailUrls(){
-        if($this->file_type != static::FILE_TYPE_IMAGE) {
+    public function getTumbnailUrls()
+    {
+        if ($this->file_type != static::FILE_TYPE_IMAGE) {
             return [];
         }
         $sizes = UploadManager::getInstance()->sizes;
         $urls = [];
-        foreach ($sizes as $name=>$size){
+        foreach ($sizes as $name => $size) {
             $url = $this->getUrl($name);
             $urls[$name] = $url;
         }
@@ -327,7 +338,8 @@ trait FileTrait
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getFileName(){
+    public function getFileName()
+    {
         return $this->getMeta('name');
     }
 
@@ -339,9 +351,10 @@ trait FileTrait
      *
      * @return array|string
      */
-    public function getMeta($name = null){
+    public function getMeta($name = null)
+    {
         $meta = $this->deserializeMetaData();
-        if($name){
+        if ($name && $meta) {
             return $meta[$name];
         }
         return $meta;
@@ -354,14 +367,15 @@ trait FileTrait
      *
      * @return string
      */
-    public static function getFileDirectory($file){
+    public static function getFileDirectory($file)
+    {
         $file = explode('/', $file);
         $f = "";
         $fSize = count($file);
-        for ($i=0; $i<$fSize-1; $i++){
-            $f.=$file[$i];
-            if($i != $fSize-2){
-                $f.="/";
+        for ($i = 0; $i < $fSize - 1; $i++) {
+            $f .= $file[$i];
+            if ($i != $fSize - 2) {
+                $f .= "/";
             }
         }
         return $f;
@@ -377,7 +391,9 @@ trait FileTrait
             'file_name' => 'fileName',
             'file_type' => 'typeLabel',
             'file_extension' => 'extension',
-            'size' => function($model) { return $model->getMeta('size'); },
+            'size' => function ($model) {
+                return $model->getMeta('size');
+            },
             'file_url' => 'url',
             'thumbnails' => 'tumbnailUrls'
         ];
@@ -388,7 +404,8 @@ trait FileTrait
      *
      * @return null|static
      */
-    public function getOwner(){
+    public function getOwner()
+    {
         /** @var ActiveRecord $userClass */
         $userClass = UploadManager::getInstance()->userClass;
         $user = $userClass::findOne($this->user_id);

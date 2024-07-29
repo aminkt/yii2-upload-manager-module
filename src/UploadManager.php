@@ -80,7 +80,7 @@ class UploadManager extends \yii\base\Module
     public function image($id, $size = null, $path = false)
     {
         $image = File::findOne($id);
-        if (!$image or $image->fileType != $image::FILE_TYPE_IMAGE)
+        if (!$image or $image->file_type != $image::FILE_TYPE_IMAGE)
             return $this->getUploadBaseUrl() . '/' . $this->fileIcon;
 
 
