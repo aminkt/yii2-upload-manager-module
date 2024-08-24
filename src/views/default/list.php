@@ -1,9 +1,10 @@
 <?php
 use aminkt\uploadManager\components\Assets;
+use aminkt\uploadManager\models\File;
 use \aminkt\uploadManager\UploadManager;
 
 /** @var $this \yii\web\View */
-/** @var $model \aminkt\uploadManager\models\File */
+/** @var $model File */
 /** @var $dataProvider \yii\data\ActiveDataProvider */
 /** @var $multiple boolean */
 /** @var $counter integer|null */
@@ -54,12 +55,15 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
     <?= \yii\helpers\Html::button('جستجو', ['class'=>'btn btn-default search-uploadmanager-btn']) ?>
 </div>
 
-<style>
-    .image_picker_image{
-        width: <?= $size[0] ?>px !important;
-        height: <?= $size[1] ?>px !important;
+<?php
+$this->registerCss(<<<CSS
+.image_picker_image{
+        width:  ${size[0]} !important;
+        height: ${size[1]} !important;
     }
-</style>
+CSS
+);
+?>
 <div class="row">
     <div class="col-md-12">
         <div class="uploadmanager-archive-container">
@@ -67,22 +71,20 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
                 <option value=""></option>
                 <?php foreach ($models as $model):
                     $fileUrl = $model->getUrl();
-                    if ($model->file_type == \aminkt\uploadManager\models\File::FILE_TYPE_IMAGE) {
-                        $url = Yii::$app->getModule('uploadManager')->image($model->id, 'thumb');
-                    } elseif($model->file_type == \aminkt\uploadManager\models\File::FILE_TYPE_VIDEO) {
+                    if ($model->file_type == File::FILE_TYPE_IMAGE) {
+                        $url = UploadManager::getInstance()->image($model->id, 'thumb');
+                    } elseif($model->file_type == File::FILE_TYPE_VIDEO) {
                         $url = $videoFileBase64Img;
                     } else {
-                        $url = \Yii::$app->getModule('uploadManager')->fileIcon;
+                        $url = UploadManager::getInstance()->fileIcon;
                     }
                     $select = in_array($model->id, $selectedItems);
                     ?>
                     <option data-img-src="<?= $url ?>"
                             data-url="<?= $fileUrl ?>"
-                            data-img-alt="<?= $model->fileName ?>"
-                            <?php if ($model->file_type != $model::FILE_TYPE_IMAGE ) : ?>
-                                data-img-label="<div class='caption'><?= $model->fileName ?></div>"
-                            <?php endif; ?>
+                            data-img-alt="<?= $model->getFileName() ?>"
                             value="<?= $model->id ?>" <?= $select?'selected="true"':'' ?>>
+                        <div class='caption'><?= $model->getFileName() ?></div>
                     </option>
                 <?php endforeach; ?>
             </select>

@@ -10,6 +10,7 @@ use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii\helpers\Inflector;
 
 /**
  * This is the model class for table "{{%files}}".
@@ -26,10 +27,6 @@ use yii\db\Expression;
  * @property integer $file_type
  * @property string $update_at
  * @property string $create_at
- *
- *
- * @property array $typeLabel
- * @property string $file_name
  */
 class File extends \yii\db\ActiveRecord implements FileInterface, FileConstantsInterface
 {
@@ -43,7 +40,7 @@ class File extends \yii\db\ActiveRecord implements FileInterface, FileConstantsI
      */
     public static function tableName()
     {
-        $moduleName = UploadManager::getInstance()->id;
+        $moduleName = Inflector::camel2id(UploadManager::getInstance()->id, '_');
         return "{{%{$moduleName}_files}}";
     }
 

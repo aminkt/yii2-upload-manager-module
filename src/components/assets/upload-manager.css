@@ -6,7 +6,12 @@
     overflow-y: scroll;
 }
 .uploadmanager-archive-container .thumbnail{
-    position: relative;
+    display: flex;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    align-items: stretch;
+    flex-direction: column;
 }
 .uploadmanager-archive-container .thumbnail .caption {
     padding: 9px;
@@ -19,6 +24,15 @@
     margin: 6px;
     word-wrap: break-word;
 }
+.uploadmanager-archive-container .thumbnail p {
+    padding: 9px;
+    color: #fff;
+    background: #000000b3;
+    margin: 6px 0;
+    word-wrap: break-word;
+    text-align: center;
+    font-size: 11pt;
+}
 .upload-manager-loading{
     background: url(loading.gif) repeat-x;
     width: 155px;
@@ -27,10 +41,18 @@
     display: none;
 }
 
+.show-image-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+}
+.show-image-container img {
+    width: 100%;
+}
+
 .show-image-container .item{
-    float: right;
     padding: 5px;
     width: 100px;
-    height: 100px;
     overflow: hidden;
 }

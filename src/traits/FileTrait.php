@@ -360,6 +360,11 @@ trait FileTrait
         return $meta;
     }
 
+    public function getMetaData(): array
+    {
+        return $this->deserializeMetaData();
+    }
+
     /**
      * Return file directory
      *

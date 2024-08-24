@@ -8,12 +8,12 @@
 [![Daily Downloads](https://poser.pugx.org/aminkt/yii2-upload-manager/d/daily)](https://packagist.org/packages/aminkt/yii2-upload-manager)
 [![composer.lock](https://poser.pugx.org/aminkt/yii2-upload-manager/composerlock)](https://packagist.org/packages/aminkt/yii2-upload-manager)
 
-To install this module add `"aminkt/yii2-uploadManager-module" : ">=1.2.0"` in your `composer.json` in your project.
+To install this module add `"aminkt/yii2-upload-anager" : ">=1.2.0"` in your `composer.json` in your project.
 
 
 Then add flowing lines into your application config:
 ```php
-'uploadManager' => [
+'upload-manager' => [
     'class' => aminkt\uploadManager\UploadManager::class,
     'uploadPath'=>Yii::getAlias("@frontendWeb")."/upload",
     'uploadUrl'=> "/upload",
@@ -28,7 +28,7 @@ Then add flowing lines into your application config:
 Then run below code to migrate up your modules:
 > Run migration if you are using defualt module models.
 ```php
-php yii migrate --migratePath="@vendor/aminkt/yii2-uploadManager-module"
+php yii migrate --migrationPath="@vendor/aminkt/yii2-upload-manager"
 ```
 
 > If you want to edit your files, open `['uploadManager/default/index']` in your browser.

@@ -80,7 +80,7 @@ class DefaultController extends Controller
     {
         if (\Yii::$app->request->isPost) {
             $file = Upload::directUpload();
-            echo Json::encode($file->metaData);
+            echo Json::encode($file->getMetaData());
             return true;
         } elseif (\Yii::$app->request->isGet)
             return $this->render('upload');

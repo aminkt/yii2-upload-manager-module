@@ -99,6 +99,8 @@ interface FileInterface
      */
     public function getMeta($metaName);
 
+    public function getMetaData(): array;
+
     /**
      * Return orginal file name.
      *

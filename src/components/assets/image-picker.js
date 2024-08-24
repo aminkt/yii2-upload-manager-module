@@ -264,7 +264,7 @@
       if (this.option.data("img-label")) {
         return this.option.data("img-label");
       } else {
-        return this.option.text();
+        return this.option.html();
       }
     };
 
