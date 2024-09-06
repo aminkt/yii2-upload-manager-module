@@ -180,8 +180,9 @@ trait FileTrait
 
                     if ($this->file_type == self::FILE_TYPE_IMAGE and $file) {
                         foreach ($sizes as $key => $size) {
-                            $Imagin = Image::thumbnail(FileHelper::normalizePath($dir . DIRECTORY_SEPARATOR . $this->file), $size[0], $size[1])
-                                ->save(FileHelper::normalizePath($dir . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . $key . '_' . $this->name));
+                            $imagePath = FileHelper::normalizePath($dir . DIRECTORY_SEPARATOR . $this->file);
+                            $Imagin = Image::thumbnail($imagePath, $size[0], $size[1]);
+                            $Imagin->save(FileHelper::normalizePath($dir . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . $key . '_' . $this->name));
                         }
                     }
                     $this->filesContainer = null;
