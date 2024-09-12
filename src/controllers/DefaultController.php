@@ -3,8 +3,8 @@
 namespace aminkt\uploadManager\controllers;
 
 use aminkt\uploadManager\components\Upload;
+use aminkt\uploadManager\models\File;
 use aminkt\uploadManager\models\FileSearch;
-use aminkt\uploadManager\models\UploadmanagerFiles;
 use aminkt\uploadManager\UploadManager;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
@@ -124,7 +124,7 @@ class DefaultController extends Controller
      */
     public function actionDelete($id)
     {
-        $file = UploadmanagerFiles::findOne($id);
+        $file = File::findOne($id);
         if (!$file) {
             throw new NotFoundHttpException("File not found");
         }
