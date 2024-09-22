@@ -103,10 +103,7 @@ class DefaultController extends Controller
         $dataProvider = $model->search(\Yii::$app->getRequest()->post());
 
         $selected = \Yii::$app->getRequest()->post('selected');
-        if(!$selected){
-            $selectedArray = [];
-        }
-        $selectedArray = explode(',', $selected);
+        $selectedArray = $selected ? explode(',', $selected) : [];
 
         return $this->renderAjax('ajax', [
             'dataProvider' => $dataProvider,
