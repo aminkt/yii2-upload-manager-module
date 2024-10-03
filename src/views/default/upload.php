@@ -25,7 +25,7 @@ CSS
             }else{
                 $id = "dropzone_uploadmanager";
             }
-            $acceptedFiles = \Yii::$app->getModule('uploadManager')->acceptedFiles;
+            $acceptedFiles = \aminkt\uploadManager\UploadManager::getInstance()->acceptedFiles;
             $options = [
                 'dictDefaultMessage' => 'اینجا را لمس کنید و یا فایل را بر روی این ناحیه بکشید و رها کنید.',
                 'dictFallbackMessage'=>'متاسفانه مرورگر شما قابلیت کشیدن و رها کردن را پشتیبانی نمیکند.',
@@ -39,14 +39,14 @@ CSS
             $afterUploadEvent = Yii::$app->request->get('afterUpload');
             if($afterUploadEvent){
                 $event = [
-                    'success' => $afterUploadEvent,
+                    'success' => base64_decode($afterUploadEvent)
                 ];
             }else
                 $event = null;
             echo \kato\DropZone::widget([
                 'id'=>$id,
                 'dropzoneContainer'=>$id.'_container',
-                'uploadUrl'=>\yii\helpers\Url::to(['/uploadManager/default/upload']),
+                'uploadUrl'=>\yii\helpers\Url::to(['/fileManager/default/upload']),
                 'autoDiscover'=>false,
                 'options'=>$options,
                 'clientEvents'=>$event,

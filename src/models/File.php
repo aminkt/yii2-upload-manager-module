@@ -40,7 +40,8 @@ class File extends \yii\db\ActiveRecord implements FileInterface, FileConstantsI
      */
     public static function tableName()
     {
-        $moduleName = Inflector::camel2id(UploadManager::getInstance()->id, '_');
+//        $moduleName = Inflector::camel2id(UploadManager::getInstance()->id, '_');
+        $moduleName = 'upload_manager';
         return "{{%{$moduleName}_files}}";
     }
 

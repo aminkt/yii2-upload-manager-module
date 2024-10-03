@@ -1,10 +1,12 @@
 <?php
 /** @var $this \yii\web\View */
 
+use aminkt\uploadManager\models\File;
+use aminkt\uploadManager\UploadManager;
 use yii\grid\CheckboxColumn;
 use yii\grid\DataColumn;
 
-/** @var $model aminkt\uploadManager\models\UploadmanagerFiles */
+/** @var $model aminkt\uploadManager\models\File */
 /** @var $dataProvider \yii\data\ActiveDataProvider */
 $this->title = "آرشیو فایل ها";
 ?>
@@ -16,8 +18,8 @@ $this->title = "آرشیو فایل ها";
         'layout' => 'inline'
     ]);
     ?>
-    <?= $form->field($model, 'fileName')->textInput(['placeholder'=>'نام فایل']) ?>
-    <?= $form->field($model, 'fileType')->dropDownList([
+    <?= $form->field($model, 'name')->textInput(['placeholder'=>'نام فایل']) ?>
+    <?= $form->field($model, 'file_type')->dropDownList([
         null => 'همه',
         $model::FILE_TYPE_IMAGE => 'تصویر',
         $model::FILE_TYPE_VIDEO => 'ویدیو',
@@ -27,7 +29,7 @@ $this->title = "آرشیو فایل ها";
         $model::FILE_TYPE_APPLICATION => 'نرم افزار',
         $model::FILE_TYPE_UNDEFINED => 'نا مشخص',
     ]) ?>
-    <?= $form->field($model, 'createTime')->widget(\faravaghi\jalaliDatePicker\jalaliDatePicker::class, [
+    <?= $form->field($model, 'create_at')->widget(\faravaghi\jalaliDatePicker\jalaliDatePicker::class, [
         'options' => array(
             'format' => 'yyyy-mm-dd',
             'viewformat' => 'yyyy/mm/dd',
@@ -55,14 +57,14 @@ $this->title = "آرشیو فایل ها";
                 'format' => 'raw',
                 'value' => function ($model, $key, $index, $column)
                 {
-                    if ($model->fileType == aminkt\uploadManager\models\UploadmanagerFiles::FILE_TYPE_IMAGE)
-                        $url = Yii::$app->getModule('uploadManager')->image($model->id, 'thumb');
+                    /** @var File $model */
+                    if ($model->file_type == $model::FILE_TYPE_IMAGE)
+                        $url = UploadManager::getInstance()->image($model->id, 'thumb');
                     else
-                        $url = \Yii::$app->getModule('uploadManager')->fileIcon;
-                    $data = $model->tags;
-                    $name = $data['name'];
-                    $size = number_format($data['size']/1000, 2);
-                    $type = $data['type'];
+                        $url = UploadManager::getInstance()->fileIcon;
+                    $name = $model->getMeta('name');
+                    $size = number_format($model->getMeta('size')/1000, 2);
+                    $type = $model->getMeta('type');
                     return <<<HTML
 <div class="row">
   <div class="col-xs-6 col-md-3">
@@ -96,7 +98,8 @@ HTML;
                 'headerOptions'=>['style'=>"width:10%"],
                 'format' => 'text',
                 'value' => function ($model, $key, $index, $column) {
-                    if ($model->status == aminkt\uploadManager\models\UploadmanagerFiles::STATUS_ENABLE)
+                    /** @var File $model */
+                    if ($model->status == $model::STATUS_ENABLE)
                         return "منتشر شده" ;
                     else
                         return "عدم انتشار";

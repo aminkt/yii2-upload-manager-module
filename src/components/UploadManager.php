@@ -50,14 +50,13 @@ class UploadManager extends InputWidget
 
     private $_url;
 
-    /** @var  $_module \aminkt\uploadManager\UploadManager */
-    private $_module;
+    private ?\aminkt\uploadManager\UploadManager $_module;
 
     public function init()
     {
         parent::init();
 
-        $this->_module = \Yii::$app->getModule('uploadManager');
+        $this->_module = \aminkt\uploadManager\UploadManager::getInstance();
         if (count($this->btnOptions) == 0) {
             $this->btnOptions = [
                 'class' => 'btn btn-primary tooltiped ' . $this->id . '-modal-btn uploadmanager-btn',
@@ -83,7 +82,7 @@ class UploadManager extends InputWidget
 
         $this->initialShowImages();
 
-        $this->_url = Url::to(['/uploadManager/default/ajax', 'multiple' => $this->multiple, 'counter' => $this->id], true);
+        $this->_url = Url::to(['/fileManager/default/ajax', 'multiple' => $this->multiple, 'counter' => $this->id], true);
     }
 
     /**
@@ -229,7 +228,7 @@ function (file) {
     });
 }
 JS;
-        $afterUploadCallback = urlencode($afterUploadCallback);
+        $afterUploadCallback = base64_encode($afterUploadCallback);
         //-----------------------------------
 
         return <<<JS

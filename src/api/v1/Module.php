@@ -2,6 +2,8 @@
 
 namespace aminkt\uploadManager\api\v1;
 
+use aminkt\uploadManager\UploadManager;
+
 /**
  * Class Module
  * API version ۱
@@ -25,11 +27,11 @@ class Module extends \yii\base\Module
      *
      * @author Amin Keshavarz <amin@keshavarz.pro>
      */
-    public static function getInstance()
+    public static function getInstance(): Module
     {
         if (parent::getInstance())
             return parent::getInstance();
 
-        return \Yii::$app->getModule('uploadManager')->getModule('apiV1');
+        return UploadManager::getInstance()->getModule('apiV1');
     }
 }

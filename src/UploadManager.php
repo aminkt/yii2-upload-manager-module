@@ -4,10 +4,8 @@ namespace aminkt\uploadManager;
 
 use aminkt\uploadManager\models\File;
 use aminkt\uploadManager\models\FileSearch;
-use aminkt\uploadManager\models\UploadmanagerFiles;
 use yii\helpers\FileHelper;
 use yii\web\NotFoundHttpException;
-use function common\components\dd;
 
 /**
  * uploadManager module definition class
@@ -67,7 +65,7 @@ class UploadManager extends \yii\base\Module
         if (parent::getInstance())
             return parent::getInstance();
 
-        return \Yii::$app->getModule('uploadManager');
+        return \Yii::$app->getModule('fileManager');
     }
 
     /**
