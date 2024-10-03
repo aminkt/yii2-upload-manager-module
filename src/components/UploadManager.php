@@ -210,25 +210,26 @@ CSS;
         // -----------------------------------
         $todayTimeFilter = \Yii::$app->getFormatter()->asDate(time(), 'php:Y-m-d');
         $todayTimeFilter = Normalize::englishNumbers($todayTimeFilter);
-        $afterUploadCallback = <<<JS
-function (file) {
-  jQuery("$loadingSelector").show();
-    jQuery("#addto-$this->id").hide();
-    jQuery("#$this->id-ajax-container").html('');
-    jQuery("#$this->id-ajax-container").load("$this->_url", {
-        selected: jQuery("#$this->id").val(),
-        "FileSearch[fileType]": "$mediaType",
-        "FileSearch[createTime]": "$todayTimeFilter"
-    }, function(responseTxt, statusTxt, xhr){
-        if(statusTxt == "success")
-            jQuery("$loadingSelector").hide();
-            jQuery("#addto-$this->id").show();
-        if(statusTxt == "error")
-            alert("Error: " + xhr.status + ": " + xhr.statusText);
-    });
-}
-JS;
-        $afterUploadCallback = base64_encode($afterUploadCallback);
+//        $afterUploadCallback = <<<JS
+//function (file) {
+//  jQuery("$loadingSelector").show();
+//    jQuery("#addto-$this->id").hide();
+//    jQuery("#$this->id-ajax-container").html('');
+//    jQuery("#$this->id-ajax-container").load("$this->_url", {
+//        selected: jQuery("#$this->id").val(),
+//        "FileSearch[fileType]": "$mediaType",
+//        "FileSearch[createTime]": "$todayTimeFilter"
+//    }, function(responseTxt, statusTxt, xhr){
+//        if(statusTxt == "success")
+//            jQuery("$loadingSelector").hide();
+//            jQuery("#addto-$this->id").show();
+//        if(statusTxt == "error")
+//            alert("Error: " + xhr.status + ": " + xhr.statusText);
+//    });
+//}
+//JS;
+//        $afterUploadCallback = base64_encode($afterUploadCallback);
+        $afterUploadCallback = "";
         //-----------------------------------
 
         return <<<JS
