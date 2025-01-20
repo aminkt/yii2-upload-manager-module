@@ -50,18 +50,10 @@ class UploadManager extends InputWidget
 
     private $_url;
 
-    private ?\aminkt\uploadManager\UploadManager $_module;
-
-    public function __construct($config = [])
-    {
-        parent::__construct($config);
-        $this->_module = \aminkt\uploadManager\UploadManager::getInstance();
-    }
 
     public function init()
     {
         parent::init();
-
         if (count($this->btnOptions) == 0) {
             $this->btnOptions = [
                 'class' => 'btn btn-primary tooltiped ' . $this->id . '-modal-btn uploadmanager-btn',
@@ -97,19 +89,20 @@ class UploadManager extends InputWidget
     {
         if ($container = $this->showImageContainer) {
             $pictures = [];
+            $uploadManagerModule  =  \aminkt\uploadManager\UploadManager::getInstance();
             if ($this->value) {
                 $ids = explode(',', $this->value);
                 foreach ($ids as $id) {
                     try {
-                        $file = $this->_module->getFile($id);
+                        $file =  $uploadManagerModule->getFile($id);
                         $pictures[] = ['id' => $id, 'url' => $file->getUrl($this->sizeOfImageInImageContainer), 'extension' => $file->extension];
                     } catch (NotFoundHttpException $e) {
-                        $pictures[] = ['id' => $id, 'url' => $this->_module->getNoImage(), 'extension' => 'jpg'];
+                        $pictures[] = ['id' => $id, 'url' => $uploadManagerModule->getNoImage(), 'extension' => 'jpg'];
                         \Yii::error("Record of file by id={$id} not found", UploadManager::class);
                     }
                 }
             } else {
-                $pictures[] = ['id' => null, 'url' => $this->_module->getNoImage(), 'extension' => 'jpg'];
+                $pictures[] = ['id' => null, 'url' => $uploadManagerModule->getNoImage(), 'extension' => 'jpg'];
             }
 
             $this->generateInitialShowImagesJs($pictures, $container);
@@ -350,6 +343,7 @@ jQuery(select).find(":selected").each(function() {
 jQuery('$showImageContainer').html(html);
 JS;
         }
+        return '';
     }
 
     /**
@@ -364,6 +358,7 @@ JS;
     insertAtCaret('$txtId', 'UploadManager['+select.val()+']');
 JS;
         }
+        return '';
     }
 
     /**
@@ -377,6 +372,7 @@ JS;
   jQuery("#{$this->id}-help-block").text(select.val().length+" مورد انتخاب شده است.");
 JS;
         }
+        return '';
     }
 
     private function enableTabsinModalJs()
