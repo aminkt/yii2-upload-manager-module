@@ -52,11 +52,16 @@ class UploadManager extends InputWidget
 
     private ?\aminkt\uploadManager\UploadManager $_module;
 
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+        $this->_module = \aminkt\uploadManager\UploadManager::getInstance();
+    }
+
     public function init()
     {
         parent::init();
 
-        $this->_module = \aminkt\uploadManager\UploadManager::getInstance();
         if (count($this->btnOptions) == 0) {
             $this->btnOptions = [
                 'class' => 'btn btn-primary tooltiped ' . $this->id . '-modal-btn uploadmanager-btn',
