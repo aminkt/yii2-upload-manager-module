@@ -33,7 +33,7 @@ class Upload extends Component
      *
      * @author Amin Keshavarz <amin@keshavarz.pro>
      */
-    public static function directUpload($input = 'file', $isBase64 = false)
+    public static function directUpload($input = 'file', $isBase64 = false, ?string $userId = null)
     {
         $module = \aminkt\uploadManager\UploadManager::getInstance();
         $uploadPath = $module->uploadPath;
@@ -60,8 +60,9 @@ class Upload extends Component
             throw new BadRequestHttpException("File not send to server.");
         }
 
+        $userId = $userId ?: \Yii::$app->getUser()->getId();
 
-        if ($userId = \Yii::$app->getUser()->getId()) {
+        if ($userId) {
             $model->setUserId($userId);
             if ($model->upload($uploadPath, $size)) {
                 //Now save file data to database
