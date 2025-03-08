@@ -58,8 +58,8 @@ $videoFileBase64Img = 'data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIi
 <?php
 $this->registerCss(<<<CSS
 .image_picker_image{
-        width:  ${size[0]} !important;
-        height: ${size[1]} !important;
+        width:  {$size[0]} !important;
+        height: {$size[1]} !important;
     }
 CSS
 );
